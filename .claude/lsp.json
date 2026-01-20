@@ -1,0 +1,76 @@
+{
+    "lspServers": {
+      "python": {
+        "command": "pylsp",
+        "args": [],
+        "extensionToLanguage": {
+          ".py": "python",
+          ".pyi": "python"
+        },
+        "env": {
+          "PYTHONPATH": "${CLAUDE_PROJECT_DIR}",
+          "PYTHONUNBUFFERED": "1"
+        },
+        "settings": {
+          "pylsp": {
+            "plugins": {
+              "jedi_completion": {
+                "enabled": true
+              },
+              "pylsp_mypy": {
+                "enabled": true,
+                "live_mode": true
+              },
+              "flake8": {
+                "enabled": true
+              },
+              "pycodestyle": {
+                "enabled": false
+              },
+              "pydocstyle": {
+                "enabled": false
+              }
+            }
+          }
+        },
+        "transport": "stdio",
+        "workspaceFolder": "${CLAUDE_PROJECT_DIR}",
+        "startupTimeout": 30000
+      },
+      "javascript": {
+        "command": "typescript-language-server",
+        "args": ["--stdio"],
+        "extensionToLanguage": {
+          ".js": "javascript",
+          ".jsx": "javascriptreact",
+          ".ts": "typescript",
+          ".tsx": "typescriptreact"
+        },
+        "settings": {
+          "typescript": {
+            "format": {
+              "indentSize": 2,
+              "tabSize": 2
+            },
+            "preferences": {
+              "includePackageJsonAutoImports": "on"
+            }
+          },
+          "javascript": {
+            "format": {
+              "indentSize": 2,
+              "tabSize": 2
+            },
+            "suggest": {
+              "autoImports": true
+            }
+          }
+        },
+        "transport": "stdio",
+        "workspaceFolder": "${CLAUDE_PROJECT_DIR}",
+        "restartOnCrash": true,
+        "startupTimeout": 30000
+      }
+    }
+  }
+  
