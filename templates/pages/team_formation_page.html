@@ -1,0 +1,474 @@
+{% extends "layouts/three_pane_layout.html" %}
+{% load static %}
+
+{#
+Context variables expected:
+- seeking_users: list of users seeking teams
+  - id, username, first_name, last_name, avatar, role, skills (list), xp, reputation, level, profile_url, seeking_team
+- recruiting_teams: list of teams recruiting members
+  - id, name, slug, tagline, members_count, max_members, needed_roles (list), membership (queryset)
+- current_user_profile: dict with current user info
+  - role, skills (list), is_seeking
+- filters: dict with active filters
+  - roles (list), skills (list), hackathon_id
+- stats: dict with counts
+  - seeking_count, recruiting_count
+- hackathons: list of active hackathons for filter dropdown
+  - id, title
+#}
+
+{% block navigation_sidebar %}
+<div class="p-gh-4 border-b border-gh-border-default dark:border-gray-700">
+    <h2 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white uppercase tracking-wide mb-gh-4">
+        Filters
+    </h2>
+
+    <!-- Role Filter -->
+    <div class="mb-gh-6">
+        <h3 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-3">
+            Role
+        </h3>
+        <form method="get" action="" class="space-y-gh-2">
+            <label class="flex items-center gap-gh-2 cursor-pointer group">
+                <input
+                    type="checkbox"
+                    name="roles"
+                    value="hacker"
+                    {% if 'hacker' in filters.roles %}checked{% endif %}
+                    class="w-4 h-4 rounded border-gh-border-default dark:border-gray-700 text-gh-accent-emphasis dark:text-gh-accent-muted bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:ring-offset-0"
+                    onchange="this.form.submit()"
+                >
+                <span class="text-sm text-gh-neutral-emphasis dark:text-gh-neutral-default group-hover:text-gh-accent-fg dark:group-hover:text-gh-accent-muted">
+                    Hacker
+                </span>
+            </label>
+
+            <label class="flex items-center gap-gh-2 cursor-pointer group">
+                <input
+                    type="checkbox"
+                    name="roles"
+                    value="hipster"
+                    {% if 'hipster' in filters.roles %}checked{% endif %}
+                    class="w-4 h-4 rounded border-gh-border-default dark:border-gray-700 text-gh-accent-emphasis dark:text-gh-accent-muted bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:ring-offset-0"
+                    onchange="this.form.submit()"
+                >
+                <span class="text-sm text-gh-neutral-emphasis dark:text-gh-neutral-default group-hover:text-gh-accent-fg dark:group-hover:text-gh-accent-muted">
+                    Hipster
+                </span>
+            </label>
+
+            <label class="flex items-center gap-gh-2 cursor-pointer group">
+                <input
+                    type="checkbox"
+                    name="roles"
+                    value="hustler"
+                    {% if 'hustler' in filters.roles %}checked{% endif %}
+                    class="w-4 h-4 rounded border-gh-border-default dark:border-gray-700 text-gh-accent-emphasis dark:text-gh-accent-muted bg-white dark:bg-gray-800 focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:ring-offset-0"
+                    onchange="this.form.submit()"
+                >
+                <span class="text-sm text-gh-neutral-emphasis dark:text-gh-neutral-default group-hover:text-gh-accent-fg dark:group-hover:text-gh-accent-muted">
+                    Hustler
+                </span>
+            </label>
+        </form>
+    </div>
+
+    <!-- Skills Filter -->
+    <div class="mb-gh-6">
+        <h3 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-3">
+            Skills
+        </h3>
+        <form method="get" action="">
+            <select
+                name="skills"
+                multiple
+                class="w-full text-sm px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-700 rounded-gh bg-white dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted"
+                onchange="this.form.submit()"
+            >
+                <option value="python" {% if 'python' in filters.skills %}selected{% endif %}>Python</option>
+                <option value="javascript" {% if 'javascript' in filters.skills %}selected{% endif %}>JavaScript</option>
+                <option value="react" {% if 'react' in filters.skills %}selected{% endif %}>React</option>
+                <option value="django" {% if 'django' in filters.skills %}selected{% endif %}>Django</option>
+                <option value="machine-learning" {% if 'machine-learning' in filters.skills %}selected{% endif %}>Machine Learning</option>
+                <option value="ui-ux" {% if 'ui-ux' in filters.skills %}selected{% endif %}>UI/UX Design</option>
+                <option value="product-management" {% if 'product-management' in filters.skills %}selected{% endif %}>Product Management</option>
+                <option value="marketing" {% if 'marketing' in filters.skills %}selected{% endif %}>Marketing</option>
+            </select>
+            <p class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mt-gh-2">
+                Hold Ctrl/Cmd to select multiple
+            </p>
+        </form>
+    </div>
+
+    <!-- Hackathon Filter -->
+    <div class="mb-gh-6">
+        <h3 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-3">
+            Hackathon
+        </h3>
+        <form method="get" action="">
+            <select
+                name="hackathon"
+                class="w-full text-sm px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-700 rounded-gh bg-white dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted"
+                onchange="this.form.submit()"
+            >
+                <option value="">All Hackathons</option>
+                {% for hackathon in hackathons %}
+                <option value="{{ hackathon.id }}" {% if filters.hackathon_id == hackathon.id %}selected{% endif %}>
+                    {{ hackathon.title }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- Clear Filters Button -->
+    {% if filters.roles or filters.skills or filters.hackathon_id %}
+    <div class="mb-gh-4">
+        <a
+            href="?clear=true"
+            class="block w-full text-center px-gh-3 py-gh-2 text-sm font-medium text-gh-neutral-emphasis dark:text-gh-neutral-default bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-700 transition-colors"
+        >
+            Clear All Filters
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock navigation_sidebar %}
+
+{% block main_content %}
+<div class="p-gh-6">
+    <!-- Page Heading -->
+    <h1 class="text-4xl font-bold text-gh-neutral-emphasis dark:text-white mb-gh-6">
+        Find Your Team
+    </h1>
+
+    <!-- Tab Toggle with Alpine.js -->
+    <div x-data="{ activeTab: 'seeking' }" class="mb-gh-6">
+        <!-- Segmented Control for Tabs -->
+        <div class="inline-flex rounded-gh border border-gh-border-default dark:border-gray-700 overflow-hidden mb-gh-6">
+            <button
+                @click="activeTab = 'seeking'"
+                :class="activeTab === 'seeking' ? 'bg-gh-accent-emphasis dark:bg-gh-accent-muted text-white' : 'bg-white dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default hover:bg-gh-bg-muted dark:hover:bg-gray-700'"
+                class="px-gh-4 py-gh-2 text-sm font-medium transition-colors border-r border-gh-border-default dark:border-gray-700"
+            >
+                Seeking Teammates
+                <span class="ml-gh-2 px-2 py-0.5 text-xs rounded-full" :class="activeTab === 'seeking' ? 'bg-white/20' : 'bg-gh-bg-subtle dark:bg-gray-700'">
+                    {{ stats.seeking_count|default:0 }}
+                </span>
+            </button>
+            <button
+                @click="activeTab = 'recruiting'"
+                :class="activeTab === 'recruiting' ? 'bg-gh-accent-emphasis dark:bg-gh-accent-muted text-white' : 'bg-white dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default hover:bg-gh-bg-muted dark:hover:bg-gray-700'"
+                class="px-gh-4 py-gh-2 text-sm font-medium transition-colors"
+            >
+                Recruiting Teams
+                <span class="ml-gh-2 px-2 py-0.5 text-xs rounded-full" :class="activeTab === 'recruiting' ? 'bg-white/20' : 'bg-gh-bg-subtle dark:bg-gray-700'">
+                    {{ stats.recruiting_count|default:0 }}
+                </span>
+            </button>
+        </div>
+
+        <!-- Seeking Teammates Panel -->
+        <div x-show="activeTab === 'seeking'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            {% if seeking_users %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gh-4">
+                {% for user in seeking_users %}
+                <article class="user-profile-card card-gh p-gh-6 hover:shadow-gh-card-hover transition-shadow">
+                    <!-- Avatar with Level Badge -->
+                    <div class="flex flex-col items-center mb-gh-4">
+                        <div class="relative mb-gh-3">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover border-2 border-gh-border-default dark:border-gray-700">
+                            {% else %}
+                            <div class="w-20 h-20 rounded-full bg-gh-accent-muted dark:bg-gh-accent-emphasis flex items-center justify-center text-2xl font-bold text-white border-2 border-gh-border-default dark:border-gray-700">
+                                {{ user.first_name.0|default:user.username.0|upper }}{{ user.last_name.0|upper }}
+                            </div>
+                            {% endif %}
+
+                            {% if user.level %}
+                            <div class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-gh-accent-emphasis dark:bg-gh-accent-muted flex items-center justify-center text-xs font-bold text-white border-2 border-gh-bg-default dark:border-gray-900 shadow-lg">
+                                {{ user.level }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Name and Role Badge -->
+                        <div class="text-center">
+                            <h3 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-1">
+                                <a href="{{ user.profile_url }}" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">
+                                    {{ user.get_full_name|default:user.username }}
+                                </a>
+                            </h3>
+                            {% if user.role %}
+                            <span class="badge-gh {% if user.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif user.role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif user.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% else %}bg-gh-bg-subtle text-gh-neutral-emphasis dark:bg-gray-800 dark:text-gh-neutral-default{% endif %}">
+                                {{ user.get_role_display|default:user.role|capfirst }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Skills Tag Cloud -->
+                    {% if user.skills %}
+                    <div class="mb-gh-4">
+                        <h4 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-2">Skills</h4>
+                        <div class="flex flex-wrap gap-gh-2 mb-gh-2">
+                            {% for skill in user.skills|slice:":3" %}
+                            <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700">
+                                {{ skill }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Quick Stats Grid -->
+                    <div class="grid grid-cols-2 gap-gh-3 mb-gh-4 p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 rounded-gh border border-gh-border-default dark:border-gray-700">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gh-accent-fg dark:text-gh-accent-muted">
+                                {{ user.xp|default:0 }}
+                            </div>
+                            <div class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted">XP</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gh-accent-fg dark:text-gh-accent-muted">
+                                {{ user.reputation|default:0 }}
+                            </div>
+                            <div class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted">Reputation</div>
+                        </div>
+                    </div>
+
+                    <!-- Seeking Team Badge -->
+                    <div class="mb-gh-4 flex items-center gap-gh-2 px-gh-3 py-gh-2 bg-gh-accent-subtle dark:bg-gh-accent-emphasis/20 border border-gh-accent-emphasis dark:border-gh-accent-muted rounded-gh">
+                        <svg class="w-4 h-4 text-gh-accent-fg dark:text-gh-accent-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="text-xs font-medium text-gh-accent-fg dark:text-gh-accent-muted">Seeking Team</span>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div>
+                        <a href="{{ user.profile_url }}" class="btn-gh btn-gh-primary w-full text-center">
+                            View Profile
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-gh-6">
+                <div class="card-gh p-gh-6 max-w-md mx-auto">
+                    <svg class="w-16 h-16 mx-auto mb-gh-4 text-gh-neutral-muted dark:text-gh-neutral-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-2">
+                        No Users Found
+                    </h3>
+                    <p class="text-sm text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-4">
+                        There are currently no users seeking teams that match your filters. Try adjusting your filter criteria or check back later.
+                    </p>
+                    {% if filters.roles or filters.skills or filters.hackathon_id %}
+                    <a href="?clear=true" class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700">
+                        Clear Filters
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recruiting Teams Panel -->
+        <div x-show="activeTab === 'recruiting'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            {% if recruiting_teams %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gh-4">
+                {% for team in recruiting_teams %}
+                <article class="team-card card-gh p-gh-6 hover:shadow-gh-card-hover transition-shadow">
+                    <h3 class="text-xl font-semibold mb-2 text-gh-neutral-emphasis dark:text-white">
+                        <a href="{% url 'team_detail' team.slug %}" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">{{ team.name }}</a>
+                    </h3>
+                    {% if team.tagline %}
+                    <p class="text-sm text-gh-neutral-default dark:text-gh-neutral-default mb-4">{{ team.tagline }}</p>
+                    {% endif %}
+
+                    <div class="flex items-center space-x-2 mb-4">
+                        {% for membership in team.membership.all|slice:":5" %}
+                        <div class="w-8 h-8 rounded-full bg-gh-accent-muted dark:bg-gh-accent-emphasis flex items-center justify-center text-xs font-semibold text-white">
+                            {{ membership.user.first_name.0 }}{{ membership.user.last_name.0 }}
+                        </div>
+                        {% endfor %}
+                        {% if team.members_count > 5 %}
+                        <div class="w-8 h-8 rounded-full bg-gh-bg-muted dark:bg-gh-border-default flex items-center justify-center text-xs text-gh-neutral-muted">
+                            +{{ team.members_count|add:"-5" }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Needed Roles -->
+                    {% if team.needed_roles %}
+                    <div class="mb-gh-4">
+                        <h4 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-2">Looking For</h4>
+                        <div class="flex flex-wrap gap-gh-2">
+                            {% for role in team.needed_roles %}
+                            <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh {% if role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
+                                {{ role|capfirst }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex items-center justify-between mb-gh-4">
+                        <span class="text-sm text-gh-neutral-muted dark:text-gh-neutral-muted">
+                            {{ team.members_count }} / {{ team.max_members|default:"∞" }} member{{ team.members_count|pluralize }}
+                        </span>
+                        <span class="badge-gh bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white">Recruiting</span>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div>
+                        <a href="{% url 'team_detail' team.slug %}" class="btn-gh btn-gh-primary w-full text-center">
+                            View Team
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-gh-6">
+                <div class="card-gh p-gh-6 max-w-md mx-auto">
+                    <svg class="w-16 h-16 mx-auto mb-gh-4 text-gh-neutral-muted dark:text-gh-neutral-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-2">
+                        No Teams Found
+                    </h3>
+                    <p class="text-sm text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-4">
+                        There are currently no teams recruiting members that match your filters. Try adjusting your filter criteria or check back later.
+                    </p>
+                    {% if filters.roles or filters.skills or filters.hackathon_id %}
+                    <a href="?clear=true" class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700">
+                        Clear Filters
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+
+{% block detail_sidebar %}
+<div class="p-gh-4 space-y-gh-6">
+    <!-- Match Tips Card -->
+    <div class="card-gh p-gh-4">
+        <h3 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-3 flex items-center gap-gh-2">
+            <svg class="w-4 h-4 text-gh-accent-fg dark:text-gh-accent-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Match Tips
+        </h3>
+        <ul class="space-y-gh-2 text-xs text-gh-neutral-default dark:text-gh-neutral-default">
+            <li class="flex items-start gap-gh-2">
+                <svg class="w-3 h-3 mt-0.5 text-gh-success-fg dark:text-gh-success-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>Complete your profile to increase visibility</span>
+            </li>
+            <li class="flex items-start gap-gh-2">
+                <svg class="w-3 h-3 mt-0.5 text-gh-success-fg dark:text-gh-success-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>List your top 5 skills for better matches</span>
+            </li>
+            <li class="flex items-start gap-gh-2">
+                <svg class="w-3 h-3 mt-0.5 text-gh-success-fg dark:text-gh-success-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>Reach out early in the hackathon cycle</span>
+            </li>
+            <li class="flex items-start gap-gh-2">
+                <svg class="w-3 h-3 mt-0.5 text-gh-success-fg dark:text-gh-success-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>Look for complementary skill sets</span>
+            </li>
+            <li class="flex items-start gap-gh-2">
+                <svg class="w-3 h-3 mt-0.5 text-gh-success-fg dark:text-gh-success-muted flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>Balance experience levels within teams</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Your Profile Summary Card -->
+    {% if current_user_profile %}
+    <div class="card-gh p-gh-4">
+        <h3 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-3 flex items-center gap-gh-2">
+            <svg class="w-4 h-4 text-gh-accent-fg dark:text-gh-accent-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Your Profile
+        </h3>
+        <div class="space-y-gh-3">
+            {% if current_user_profile.role %}
+            <div>
+                <div class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-1">Role</div>
+                <span class="badge-gh {% if current_user_profile.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif current_user_profile.role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif current_user_profile.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
+                    {{ current_user_profile.role|capfirst }}
+                </span>
+            </div>
+            {% endif %}
+
+            {% if current_user_profile.skills %}
+            <div>
+                <div class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-2">Skills</div>
+                <div class="flex flex-wrap gap-gh-2">
+                    {% for skill in current_user_profile.skills|slice:":3" %}
+                    <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700">
+                        {{ skill }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user_profile.is_seeking %}
+            <div class="flex items-center gap-gh-2 px-gh-3 py-gh-2 bg-gh-accent-subtle dark:bg-gh-accent-emphasis/20 border border-gh-accent-emphasis dark:border-gh-accent-muted rounded-gh">
+                <svg class="w-4 h-4 text-gh-accent-fg dark:text-gh-accent-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="text-xs font-medium text-gh-accent-fg dark:text-gh-accent-muted">Seeking Team</span>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'account_profile' %}" class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 text-center w-full text-sm">
+                Edit Profile
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats Card -->
+    <div class="card-gh p-gh-4">
+        <h3 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-3 flex items-center gap-gh-2">
+            <svg class="w-4 h-4 text-gh-accent-fg dark:text-gh-accent-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Platform Stats
+        </h3>
+        <div class="space-y-gh-3">
+            <div class="flex items-center justify-between p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 rounded-gh border border-gh-border-default dark:border-gray-700">
+                <span class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted">Seeking Teams</span>
+                <span class="text-lg font-bold text-gh-accent-fg dark:text-gh-accent-muted">{{ stats.seeking_count|default:0 }}</span>
+            </div>
+            <div class="flex items-center justify-between p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 rounded-gh border border-gh-border-default dark:border-gray-700">
+                <span class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted">Recruiting Teams</span>
+                <span class="text-lg font-bold text-gh-accent-fg dark:text-gh-accent-muted">{{ stats.recruiting_count|default:0 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock detail_sidebar %}
