@@ -15,7 +15,7 @@
 
         <div class="relative container mx-auto px-8 py-16">
             <h1 class="event-title text-4xl font-serif font-bold mb-4">{{ page.title }}</h1>
-            <div class="event-meta flex items-center space-x-4 mb-6">
+            <div class="event-meta flex items-center gap-gh-2 mb-6">
                 <span class="status-badge px-4 py-2 rounded-full bg-white bg-opacity-20 backdrop-blur">
                     {{ page.get_status_display }}
                 </span>
@@ -23,7 +23,7 @@
                 {% include "components/countdown-timer.html" with end_date=page.get_current_phase.end_date %}
                 {% endif %}
             </div>
-            <div class="event-actions space-x-4">
+            <div class="event-actions gap-gh-2">
                 {% block event_actions %}{% endblock %}
             </div>
         </div>

@@ -6,7 +6,7 @@
     <header class="profile-header bg-gradient-to-r from-gh-neutral-emphasis to-gh-accent-fg text-white dark:from-gh-neutral-emphasis dark:to-gh-accent-emphasis gh-6">
         {% block profile_header %}
         <div class="container mx-auto px-8">
-            <div class="flex items-center space-x-6">
+            <div class="flex items-center gap-gh-3">
                 <div class="profile-avatar-large w-32 h-32 rounded-full bg-white bg-opacity-20 backdrop-blur flex items-center justify-center text-4xl font-bold">
                     {% block profile_avatar %}
                     {{ profile.first_name.0|default:"U" }}{{ profile.last_name.0|default:"" }}
@@ -17,11 +17,11 @@
                     <h1 class="profile-name text-3xl font-bold mb-2">{{ profile.get_full_name }}</h1>
                     {% block profile_tagline %}{% endblock %}
 
-                    <div class="profile-metrics flex space-x-8 mt-4">
+                    <div class="profile-metrics flex gap-gh-4 mt-4">
                         {% block profile_metrics %}{% endblock %}
                     </div>
 
-                    <div class="profile-actions mt-6 space-x-4">
+                    <div class="profile-actions mt-6 gap-gh-2">
                         {% block profile_actions %}{% endblock %}
                     </div>
                 </div>
