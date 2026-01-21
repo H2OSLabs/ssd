@@ -22,24 +22,3 @@
         {% endfor %}
     </ol>
 </nav>
-
-<!-- Mobile truncation: Show ellipsis for middle items on small screens -->
-<style>
-@media (max-width: 640px) {
-    .breadcrumb-nav ol {
-        max-width: 100%;
-    }
-
-    .breadcrumb-nav li:not(:first-child):not(:last-child) a,
-    .breadcrumb-nav li:not(:first-child):not(:last-child) svg {
-        display: none;
-    }
-
-    /* Show ellipsis if there are more than 2 items */
-    .breadcrumb-nav ol li:nth-child(2)::after {
-        content: '...';
-        color: var(--color-neutral-muted);
-        padding: 0 0.5rem;
-    }
-}
-</style>

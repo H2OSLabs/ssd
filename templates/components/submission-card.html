@@ -1,3 +1,4 @@
+{% load humanize %}
 <article class="submission-card card-gh p-gh-6" x-data="{ expanded: false }">
     <div class="flex items-start justify-between mb-gh-4">
         <!-- Verification Status Badge -->
@@ -14,7 +15,7 @@
         </span>
 
         <!-- Score Display (if verified) -->
-        {% if submission.score is not None and submission.status == 'verified' or submission.status == 'passed' %}
+        {% if submission.score is not None and (submission.status == 'verified' or submission.status == 'passed') %}
         <div class="text-right">
             <div class="text-3xl font-bold text-gh-accent-fg dark:text-gh-accent-muted">
                 {{ submission.score }}
@@ -42,7 +43,6 @@
     <!-- Timestamp -->
     <div class="text-sm text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-4">
         <span>Submitted </span>
-        {% load humanize %}
         <time datetime="{{ submission.created_at|date:'c' }}" title="{{ submission.created_at }}">
             {{ submission.created_at|naturaltime }}
         </time>

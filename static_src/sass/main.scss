@@ -365,4 +365,26 @@
             }
         }
     }
+
+    // Breadcrumb Navigation Component
+    .breadcrumb-nav {
+        // Mobile truncation: Show ellipsis for middle items on small screens
+        @media (max-width: 640px) {
+            ol {
+                max-width: 100%;
+            }
+
+            li:not(:first-child):not(:last-child) a,
+            li:not(:first-child):not(:last-child) svg {
+                display: none;
+            }
+
+            // Show ellipsis if there are more than 2 items
+            ol li:nth-child(2)::after {
+                content: '...';
+                color: var(--color-neutral-muted);
+                padding: 0 0.5rem;
+            }
+        }
+    }
 }
