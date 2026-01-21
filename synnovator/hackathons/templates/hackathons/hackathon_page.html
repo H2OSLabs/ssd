@@ -1,0 +1,76 @@
+{% extends "layouts/event_layout.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block event_actions %}
+{% if page.status == 'registration_open' %}
+    <a href="{% url 'hackathons:register' page.slug %}" class="btn btn-primary btn-lg">
+        Register Now
+    </a>
+{% elif page.status == 'in_progress' and user.is_authenticated %}
+    <a href="{% url 'hackathons:teams' page.slug %}" class="btn btn-primary">
+        View Teams
+    </a>
+    <a href="{% url 'hackathons:submit' page.slug %}" class="btn btn-secondary">
+        Submit Project
+    </a>
+{% endif %}
+{% endblock %}
+
+{% block tab_overview %}
+<div class="hackathon-overview prose dark:prose-invert max-w-none">
+    {{ page.description|richtext }}
+
+    {% if page.body %}
+        {% include_block page.body %}
+    {% endif %}
+
+    {% if page.phases.exists %}
+        <section class="phases-section mt-8">
+            <h2 class="text-2xl font-bold mb-4">Event Timeline</h2>
+            {% include "components/phase-timeline.html" with phases=page.phases.all %}
+        </section>
+    {% endif %}
+
+    {% if page.prizes.exists %}
+        <section class="prizes-section mt-8">
+            <h2 class="text-2xl font-bold mb-4">Prizes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for prize in page.prizes.all %}
+                    {% include "components/prize-card.html" with prize=prize %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block tab_teams %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for team in page.teams.all %}
+        {% include "components/team-card.html" with team=team %}
+    {% empty %}
+        <p class="col-span-full text-center text-gray-500 py-8">No teams have formed yet. Be the first!</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block tab_leaderboard %}
+{% include "components/leaderboard.html" with teams=page.get_leaderboard %}
+{% endblock %}
+
+{% block event_sidebar %}
+{{ block.super }}
+{% if page.phases.exists %}
+<div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+    <h3 class="font-semibold mb-4">Event Timeline</h3>
+    <ul class="space-y-2">
+        {% for phase in page.phases.all %}
+        <li class="{% if phase.is_active %}text-mackerel-400 font-semibold{% endif %}">
+            <div>{{ phase.title }}</div>
+            <div class="text-xs text-gray-500">{{ phase.start_date|date:"M d" }} - {{ phase.end_date|date:"M d" }}</div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

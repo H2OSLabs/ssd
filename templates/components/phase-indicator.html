@@ -1,0 +1,7 @@
+<div class="phase-indicator p-4 bg-mackerel-50 dark:bg-mackerel-900 rounded-lg">
+    <h4 class="font-semibold text-mackerel-400 mb-2">{{ phase.title }}</h4>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ phase.description }}</p>
+    <div class="text-xs text-gray-500">
+        {{ phase.start_date|date:"M d" }} - {{ phase.end_date|date:"M d, Y" }}
+    </div>
+</div>

@@ -3,10 +3,11 @@ from bs4 import BeautifulSoup
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.files.images import ImageFile
 from django.contrib.staticfiles.finders import find
-from django.db import models
+from django.db import models, transaction, router, IntegrityError
 from django.db.models import QuerySet
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from modelcluster.fields import ParentalKey
 from willow.image import Image as WillowImage
 
@@ -16,6 +17,7 @@ from wagtail.fields import RichTextField
 from wagtail.models import Orderable, Page
 from wagtail.rich_text import expand_db_html
 from wagtail.snippets.models import register_snippet
+from wagtail_localize.models import TranslatableMixin
 
 from synnovator.images.models import CustomImage
 from synnovator.utils.cache import get_default_cache_control_decorator
@@ -95,7 +97,7 @@ class ListingFields(models.Model):
 
 
 @register_snippet
-class AuthorSnippet(models.Model):
+class AuthorSnippet(TranslatableMixin, models.Model):
     title = models.CharField(blank=False, max_length=255)
     image = models.ForeignKey(
         "images.CustomImage",
@@ -105,14 +107,20 @@ class AuthorSnippet(models.Model):
         related_name="+",
     )
 
+    class Meta:
+        unique_together = [("translation_key", "locale")]
+
     def __str__(self):
         return self.title
 
 
 @register_snippet
-class ArticleTopic(models.Model):
+class ArticleTopic(TranslatableMixin, models.Model):
     title = models.CharField(blank=False, max_length=255)
     slug = models.SlugField(blank=False, max_length=255)
+
+    class Meta:
+        unique_together = [("translation_key", "locale")]
 
     def __str__(self):
         return self.title
@@ -162,9 +170,12 @@ class ArticleTopic(models.Model):
 
 
 @register_snippet
-class Statistic(models.Model):
+class Statistic(TranslatableMixin, models.Model):
     statistic = models.CharField(blank=False, max_length=12)
     description = models.CharField(blank=False, max_length=225)
+
+    class Meta:
+        unique_together = [("translation_key", "locale")]
 
     panels = [
         FieldPanel("statistic"),
@@ -176,7 +187,7 @@ class Statistic(models.Model):
 
 
 @register_setting
-class SocialMediaSettings(BaseSiteSetting):
+class SocialMediaSettings(TranslatableMixin, BaseSiteSetting):
     twitter_handle = models.CharField(
         max_length=255,
         blank=True,
@@ -204,11 +215,15 @@ class SocialMediaSettings(BaseSiteSetting):
         help_text="Default sharing text to use if social text has not been set on a page.",
     )
 
+    class Meta:
+        unique_together = [("translation_key", "locale")]
+
 
 @register_setting
-class SystemMessagesSettings(BaseSiteSetting):
+class SystemMessagesSettings(TranslatableMixin, BaseSiteSetting):
     class Meta:
         verbose_name = "system messages"
+        unique_together = [("translation_key", "locale")]
 
     title_404 = models.CharField("Title", max_length=255, default="Page not found")
     body_404 = RichTextField(

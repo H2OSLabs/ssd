@@ -1,0 +1,30 @@
+<div class="team-card bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition p-6">
+    <h3 class="text-xl font-semibold mb-2">
+        <a href="#" class="hover:text-mackerel-300">{{ team.name }}</a>
+    </h3>
+    {% if team.tagline %}
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ team.tagline }}</p>
+    {% endif %}
+
+    <div class="flex items-center space-x-2 mb-4">
+        {% for membership in team.membership.all|slice:":5" %}
+        <div class="w-8 h-8 rounded-full bg-mackerel-200 flex items-center justify-center text-xs font-semibold">
+            {{ membership.user.first_name.0 }}{{ membership.user.last_name.0 }}
+        </div>
+        {% endfor %}
+        {% if team.members.count > 5 %}
+        <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs">
+            +{{ team.members.count|add:"-5" }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+            {{ team.members.count }} member{{ team.members.count|pluralize }}
+        </span>
+        {% if team.is_seeking_members %}
+        <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Recruiting</span>
+        {% endif %}
+    </div>
+</div>

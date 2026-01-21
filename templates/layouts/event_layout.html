@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+<article class="event-layout">
+    <header class="event-header relative bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white">
+        {% block event_header %}
+        {% if page.cover_image %}
+            {% image page.cover_image fill-1200x400 as cover %}
+            <div class="absolute inset-0">
+                <img src="{{ cover.url }}" alt="{{ page.title }}" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        {% endif %}
+
+        <div class="relative container mx-auto px-8 py-16">
+            <h1 class="event-title text-4xl font-serif font-bold mb-4">{{ page.title }}</h1>
+            <div class="event-meta flex items-center space-x-4 mb-6">
+                <span class="status-badge px-4 py-2 rounded-full bg-white bg-opacity-20 backdrop-blur">
+                    {{ page.get_status_display }}
+                </span>
+                {% if page.get_current_phase %}
+                {% include "components/countdown-timer.html" with end_date=page.get_current_phase.end_date %}
+                {% endif %}
+            </div>
+            <div class="event-actions space-x-4">
+                {% block event_actions %}{% endblock %}
+            </div>
+        </div>
+        {% endblock event_header %}
+    </header>
+
+    <div class="event-tabs" x-data="{ activeTab: 'overview' }">
+        <nav class="tab-navigation bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-8">
+                <div class="flex space-x-8">
+                    <button @click="activeTab = 'overview'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'overview' }" class="py-4 font-medium">
+                        Overview
+                    </button>
+                    <button @click="activeTab = 'teams'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'teams' }" class="py-4 font-medium">
+                        Teams
+                    </button>
+                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'projects' }" class="py-4 font-medium">
+                        Projects
+                    </button>
+                    <button @click="activeTab = 'rules'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'rules' }" class="py-4 font-medium">
+                        Rules
+                    </button>
+                    <button @click="activeTab = 'leaderboard'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'leaderboard' }" class="py-4 font-medium">
+                        Leaderboard
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="event-content-wrapper flex container mx-auto px-8 py-8">
+            <main class="event-main flex-1 pr-8">
+                <div x-show="activeTab === 'overview'" x-transition>
+                    {% block tab_overview %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'teams'" x-transition x-cloak>
+                    {% block tab_teams %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'projects'" x-transition x-cloak>
+                    {% block tab_projects %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'rules'" x-transition x-cloak>
+                    {% block tab_rules %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'leaderboard'" x-transition x-cloak>
+                    {% block tab_leaderboard %}{% endblock %}
+                </div>
+            </main>
+
+            <aside class="event-sidebar w-80 sticky top-0 h-screen overflow-y-auto">
+                {% block event_sidebar %}
+                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
+                    <h3 class="font-semibold mb-4">Event Stats</h3>
+                    {% include "components/stats-panel.html" %}
+                </div>
+
+                {% if page.get_current_phase %}
+                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
+                    <h3 class="font-semibold mb-4">Current Phase</h3>
+                    {% include "components/phase-indicator.html" with phase=page.get_current_phase %}
+                </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="font-semibold mb-4">Looking for teammates?</h3>
+                    {% include "components/team-formation-widget.html" %}
+                </div>
+                {% endif %}
+                {% endblock event_sidebar %}
+            </aside>
+        </div>
+    </div>
+</article>
+{% endblock content %}

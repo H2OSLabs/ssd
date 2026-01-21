@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<div class="site-container px-10 md:px-20 py-16">
+    <h1 class="text-4xl font-bold mb-8">Hackathons</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for hackathon in hackathons %}
+            {% include "components/event-card.html" with event=hackathon %}
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500 py-8">No hackathons available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

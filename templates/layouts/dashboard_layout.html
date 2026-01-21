@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-layout flex min-h-screen">
+    <aside class="dashboard-sidebar w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sticky top-0 h-screen overflow-y-auto">
+        {% block sidebar %}
+        <nav class="sidebar-nav p-6">
+            <ul class="space-y-2">
+                <li><a href="{% url 'home' %}" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</a></li>
+                <li><a href="{% url 'hackathons:list' %}" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">My Hackathons</a></li>
+                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">My Teams</a></li>
+                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Submissions</a></li>
+                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a></li>
+            </ul>
+        </nav>
+
+        {% if user.is_authenticated %}
+        <div class="sidebar-profile p-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="profile-avatar w-10 h-10 rounded-full bg-mackerel-300 flex items-center justify-center text-white font-semibold">
+                    {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name text-sm font-medium">{{ user.get_full_name }}</div>
+                    <div class="profile-xp text-xs text-gray-500">Level {{ user.level }} • {{ user.xp_points }} XP</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endblock sidebar %}
+    </aside>
+
+    <main class="dashboard-main flex-1 p-8 bg-gray-50 dark:bg-gray-900">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock content %}

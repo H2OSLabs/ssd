@@ -1,0 +1,15 @@
+<div class="prize-card bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 p-6 rounded-lg">
+    <div class="text-3xl mb-2">
+        {% if prize.rank == 1 %}🥇
+        {% elif prize.rank == 2 %}🥈
+        {% elif prize.rank == 3 %}🥉
+        {% else %}🏆{% endif %}
+    </div>
+    <h4 class="font-bold text-lg mb-2">{{ prize.title }}</h4>
+    <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">{{ prize.description }}</p>
+    {% if prize.monetary_value %}
+    <div class="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+        ${{ prize.monetary_value }}
+    </div>
+    {% endif %}
+</div>

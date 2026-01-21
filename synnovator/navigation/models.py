@@ -5,29 +5,33 @@ from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.fields import StreamField
 from wagtail.snippets.blocks import SnippetChooserBlock
+from wagtail_localize.models import TranslatableMixin
 
 from synnovator.utils.blocks import LinkStreamBlock, InternalLinkBlock
 
 
 @register_setting(icon="list-ul")
-class NavigationSettings(BaseSiteSetting, ClusterableModel):
+class NavigationSettings(TranslatableMixin, BaseSiteSetting, ClusterableModel):
     primary_navigation = StreamField(
         [("link", InternalLinkBlock())],
         blank=True,
         help_text="Main site navigation",
-        
+
     )
     footer_navigation = StreamField(
         [("link_section", blocks.StructBlock([
                 ("section_heading", blocks.CharBlock()),
                 ("links", LinkStreamBlock(
-                    label = "Links", 
+                    label = "Links",
                     max_num = None
                 )),
-            ])) 
+            ]))
         ],
         blank=True,
     )
+
+    class Meta:
+        unique_together = [("translation_key", "locale")]
 
     panels = [
         FieldPanel("primary_navigation"),

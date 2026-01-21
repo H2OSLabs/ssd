@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<article class="profile-layout">
+    <header class="profile-header bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white py-12">
+        {% block profile_header %}
+        <div class="container mx-auto px-8">
+            <div class="flex items-center space-x-6">
+                <div class="profile-avatar-large w-32 h-32 rounded-full bg-white bg-opacity-20 backdrop-blur flex items-center justify-center text-4xl font-bold">
+                    {% block profile_avatar %}
+                    {{ profile.first_name.0|default:"U" }}{{ profile.last_name.0|default:"" }}
+                    {% endblock %}
+                </div>
+
+                <div class="profile-header-content flex-1">
+                    <h1 class="profile-name text-3xl font-bold mb-2">{{ profile.get_full_name }}</h1>
+                    {% block profile_tagline %}{% endblock %}
+
+                    <div class="profile-metrics flex space-x-8 mt-4">
+                        {% block profile_metrics %}{% endblock %}
+                    </div>
+
+                    <div class="profile-actions mt-6 space-x-4">
+                        {% block profile_actions %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock profile_header %}
+    </header>
+
+    <div class="profile-tabs" x-data="{ activeTab: 'about' }">
+        <nav class="tab-navigation bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-8">
+                <div class="flex space-x-8">
+                    {% block tab_navigation %}
+                    <button @click="activeTab = 'about'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'about' }" class="py-4 font-medium">
+                        About
+                    </button>
+                    <button @click="activeTab = 'skills'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'skills' }" class="py-4 font-medium">
+                        Skills
+                    </button>
+                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'projects' }" class="py-4 font-medium">
+                        Projects
+                    </button>
+                    <button @click="activeTab = 'history'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'history' }" class="py-4 font-medium">
+                        History
+                    </button>
+                    {% endblock tab_navigation %}
+                </div>
+            </div>
+        </nav>
+
+        <div class="profile-content-wrapper flex container mx-auto px-8 py-8">
+            <main class="profile-main flex-1 pr-8">
+                <div x-show="activeTab === 'about'" x-transition>
+                    {% block tab_about %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'skills'" x-transition x-cloak>
+                    {% block tab_skills %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'projects'" x-transition x-cloak>
+                    {% block tab_projects %}{% endblock %}
+                </div>
+                <div x-show="activeTab === 'history'" x-transition x-cloak>
+                    {% block tab_history %}{% endblock %}
+                </div>
+            </main>
+
+            <aside class="profile-sidebar w-80 sticky top-0 h-screen overflow-y-auto">
+                {% block profile_sidebar %}
+                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
+                    <h3 class="font-semibold mb-4">Badges</h3>
+                    {% block badges %}{% endblock %}
+                </div>
+
+                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                    <h3 class="font-semibold mb-4">Recent Activity</h3>
+                    {% block recent_activity %}{% endblock %}
+                </div>
+                {% endblock profile_sidebar %}
+            </aside>
+        </div>
+    </div>
+</article>
+{% endblock content %}

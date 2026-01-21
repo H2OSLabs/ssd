@@ -33,6 +33,7 @@ if "CSRF_TRUSTED_ORIGINS" in os.environ:
 
 INSTALLED_APPS = [
     "synnovator.forms",
+    "synnovator.hackathons",
     "synnovator.home",
     "synnovator.images",
     "synnovator.navigation",
@@ -41,9 +42,14 @@ INSTALLED_APPS = [
     "synnovator.standardpages",
     "synnovator.users",
     "synnovator.utils",
+    # Wagtail Localize - MUST be before wagtail.contrib.settings
+    "wagtail_localize",
+    "wagtail_localize.locales",
     "wagtail.contrib.settings",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    "wagtail.contrib.table_block",
+    "wagtail.api.v2",
     "wagtail.sites",
     "wagtail.users",
     "wagtail.snippets",
@@ -67,6 +73,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -89,6 +96,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
@@ -134,7 +142,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "zh-hans"
+
+LANGUAGES = [
+    ("en", "English"),
+    ("zh-hans", "简体中文"),
+]
+
+# Wagtail i18n
+WAGTAIL_I18N_ENABLED = True
+WAGTAIL_CONTENT_LANGUAGES = LANGUAGES
+
+# Locale paths for Django UI translations
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, "locale"),
+]
 
 TIME_ZONE = "UTC"
 
@@ -329,3 +351,22 @@ CACHE_CONTROL_STALE_WHILE_REVALIDATE = int(
 )
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# Hackathon-specific settings
+HACKATHON_MAX_TEAM_SIZE = 10
+HACKATHON_DEFAULT_MIN_TEAM_SIZE = 2
+HACKATHON_DEFAULT_MAX_TEAM_SIZE = 5
+HACKATHON_XP_PER_QUEST = 100
+HACKATHON_PASSING_SCORE = 80.0  # Default passing score
+
+# File upload settings
+HACKATHON_MAX_SUBMISSION_SIZE = 50 * 1024 * 1024  # 50 MB
+HACKATHON_ALLOWED_FILE_TYPES = [
+    '.zip', '.tar.gz', '.pdf', '.md',
+    '.py', '.js', '.java', '.go'
+]
+
+# Gamification
+XP_LEVEL_MULTIPLIER = 100  # 100 XP = 1 level
+

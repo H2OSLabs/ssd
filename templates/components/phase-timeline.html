@@ -1,0 +1,13 @@
+<div class="phase-timeline space-y-4">
+    {% for phase in phases %}
+    <div class="phase-item flex {% if phase.is_active %}border-l-4 border-mackerel-300 pl-4{% else %}pl-5{% endif %}">
+        <div class="flex-1">
+            <h4 class="font-semibold {% if phase.is_active %}text-mackerel-400{% endif %}">{{ phase.title }}</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ phase.description }}</p>
+            <p class="text-xs text-gray-500 mt-2">
+                {{ phase.start_date|date:"M d" }} - {{ phase.end_date|date:"M d, Y" }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>

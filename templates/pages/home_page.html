@@ -3,46 +3,71 @@
 {% load wagtailcore_tags wagtailimages_tags static %}
 
 {% block content %}
-    <div class="site-padding site-container">
-        <div class="relative max-w-[872px] pt-32 tall:pt-40 pb-40 md:pb-60">
-            <h1 class="font-serif4 [word-spacing:-6px] font-bold text-7xl lg:text-10xl">
+    {# Hero Section #}
+    <div class="bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white py-20">
+        <div class="site-container px-10 md:px-20">
+            <h1 class="font-serif4 font-bold text-5xl md:text-7xl mb-6">
                 {{ page.title }}
             </h1>
-            
-            <div class="
-                absolute
-                overflow-hidden
-                z-[-1]
-                right-[-78px]
-                top-[98px]
-                w-52
-                h-52
-                md:right-[-131px]
-                md:top-[24px]
-                tall:md:top-[131px]
-                md:w-64
-                md:h-64
-                rotate-[32deg]
-                border-[3px]
-                rounded-3xl
-                border-dashed
-                border-mackerel-200"
-            >
-            </div>
-            <div class="max-w-[636px] pt-5 rich-text">
+            <div class="max-w-[636px] text-xl mb-8 opacity-90">
                 {{ page.introduction|richtext }}
             </div>
-            {% if page.hero_cta %}
-                <div class="pt-10">
-                    {% include "components/button.html" with title=page.hero_cta.0.value.get_title url=page.hero_cta.0.value.get_url %}
-                </div>
-            {% endif %}
+            <div class="flex flex-wrap gap-4">
+                <a href="{% url 'hackathons:list' %}" class="btn btn-lg bg-white text-mackerel-400 hover:bg-gray-100">
+                    Browse Hackathons
+                </a>
+                <a href="#" class="btn btn-lg bg-mackerel-500 text-white hover:bg-mackerel-600">
+                    Explore Dojo
+                </a>
+                <a href="#" class="btn btn-lg bg-mackerel-500 text-white hover:bg-mackerel-600">
+                    Find Your Team
+                </a>
+            </div>
         </div>
     </div>
 
-    {% include_block page.body %}
+    {# Stats Bar #}
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-8">
+        <div class="site-container px-10 md:px-20">
+            <div class="grid grid-cols-3 gap-8 text-center">
+                <div>
+                    <div class="text-3xl font-bold text-mackerel-400">12</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Hackathons</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-mackerel-400">347</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Teams Formed</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-mackerel-400">8,429</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Quests Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {% include "components/related-pages.html" %}
+    {# Featured Hackathons #}
+    <div class="py-16 bg-gray-50 dark:bg-gray-900">
+        <div class="site-container px-10 md:px-20">
+            <h2 class="text-3xl font-bold mb-8">{{ page.featured_section_title|default:"Featured Hackathons" }}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for related_page in page.page_related_pages.all|slice:":3" %}
+                    {% with event=related_page.page.specific %}
+                    {% include "components/event-card.html" with event=event %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# Body Content #}
+    {% if page.body %}
+    <div class="py-16">
+        <div class="site-container px-10 md:px-20">
+            {% include_block page.body %}
+        </div>
+    </div>
+    {% endif %}
 
 {% endblock %}
 

@@ -1,0 +1,25 @@
+<div class="stats-panel space-y-3">
+    <div class="stat-item flex items-center">
+        <span class="text-2xl mr-3">👥</span>
+        <div>
+            <div class="text-2xl font-bold">{{ stats.teams_count|default:"0" }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Teams</div>
+        </div>
+    </div>
+
+    <div class="stat-item flex items-center">
+        <span class="text-2xl mr-3">👤</span>
+        <div>
+            <div class="text-2xl font-bold">{{ stats.participants_count|default:"0" }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Participants</div>
+        </div>
+    </div>
+
+    <div class="stat-item flex items-center">
+        <span class="text-2xl mr-3">📦</span>
+        <div>
+            <div class="text-2xl font-bold">{{ stats.submissions_count|default:"0" }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Submissions</div>
+        </div>
+    </div>
+</div>

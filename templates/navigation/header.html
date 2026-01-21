@@ -55,19 +55,22 @@
                     </li>
                 {% endfor %}
                 <li class="flex items-center">
-                    <button 
+                    <button
                         data-toggle-search-panel
                         type="button"
-                        aria-expanded="true" 
-                        aria-controls="search-panel" 
-                        aria-label="Show search overlay" 
+                        aria-expanded="true"
+                        aria-controls="search-panel"
+                        aria-label="Show search overlay"
                         class=""
                         >
                         <span class="sr-only">
-                        Search 
+                        Search
                         </span>
                         {% include "icons/magnifying-glass.html" with class="fill-current w-5 h-5" %}
                     </button>
+                </li>
+                <li class="flex items-center">
+                    {% include "components/language-switcher.html" %}
                 </li>
                 <li>
                     {% include "components/theme-toggle.html" %}
@@ -130,6 +133,9 @@
             {% endfor %}
         </ul>
         {% include "components/search.html" with variant="mobile-menu" %}
+        <div class="mt-6 mb-4">
+            {% include "components/language-switcher.html" %}
+        </div>
         {% include "components/theme-toggle.html" %}
     </nav>
     </section>

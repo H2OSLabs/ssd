@@ -1,0 +1,30 @@
+<div class="team-formation-widget" x-data="{ role: '' }">
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Find teammates based on your role</p>
+
+    <div class="role-selector mb-4">
+        <label class="block text-sm font-medium mb-2">I am a:</label>
+        <div class="grid grid-cols-1 gap-2">
+            <button @click="role = 'hacker'"
+                    :class="{ 'bg-mackerel-300 text-white': role === 'hacker', 'bg-gray-100 dark:bg-gray-700': role !== 'hacker' }"
+                    class="role-option px-4 py-2 rounded-lg text-left hover:bg-mackerel-200 transition">
+                💻 Hacker
+            </button>
+            <button @click="role = 'hipster'"
+                    :class="{ 'bg-mackerel-300 text-white': role === 'hipster', 'bg-gray-100 dark:bg-gray-700': role !== 'hipster' }"
+                    class="role-option px-4 py-2 rounded-lg text-left hover:bg-mackerel-200 transition">
+                🎨 Hipster
+            </button>
+            <button @click="role = 'hustler'"
+                    :class="{ 'bg-mackerel-300 text-white': role === 'hustler', 'bg-gray-100 dark:bg-gray-700': role !== 'hustler' }"
+                    class="role-option px-4 py-2 rounded-lg text-left hover:bg-mackerel-200 transition">
+                📈 Hustler
+            </button>
+        </div>
+    </div>
+
+    <a :href="'{% url "hackathons:teams" %}?role=' + role"
+       class="btn btn-primary btn-block"
+       :class="{ 'opacity-50 cursor-not-allowed': !role }">
+        Find Teams
+    </a>
+</div>

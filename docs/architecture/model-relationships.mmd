@@ -1,0 +1,282 @@
+erDiagram
+    %% Core Business Models
+    HackathonPage ||--o{ Phase : "has phases"
+    HackathonPage ||--o{ Prize : "has prizes"
+    HackathonPage ||--o{ Team : "hosts teams"
+    HackathonPage ||--o{ Quest : "has quests"
+    HackathonPage ||--o{ Submission : "receives final submissions"
+
+    HackathonPage {
+        int id PK
+        string title
+        string slug
+        text description
+        FK cover_image
+        int min_team_size
+        int max_team_size
+        bool allow_solo
+        json required_roles
+        decimal passing_score
+        string status
+        streamfield body
+        datetime first_published_at
+    }
+
+    Phase {
+        int id PK
+        FK hackathon FK
+        string title
+        text description
+        datetime start_date
+        datetime end_date
+        int order
+        json requirements
+    }
+
+    Prize {
+        int id PK
+        FK hackathon FK
+        string title
+        text description
+        int rank
+        decimal monetary_value
+        json benefits
+    }
+
+    Team {
+        int id PK
+        FK hackathon FK
+        string name
+        string slug
+        string tagline
+        decimal final_score
+        decimal technical_score
+        decimal commercial_score
+        decimal operational_score
+        string status
+        bool is_seeking_members
+        datetime created_at
+        datetime updated_at
+    }
+
+    Team }o--o{ User : "has members (through TeamMember)"
+    Team ||--o{ Submission : "makes submissions"
+    Team ||--o{ TeamMember : "has membership"
+
+    TeamMember {
+        int id PK
+        FK team FK
+        FK user FK
+        string role
+        bool is_leader
+        datetime joined_at
+    }
+
+    User ||--o{ TeamMember : "joins teams"
+    User ||--o{ Submission : "makes individual submissions"
+    User ||--o{ Submission : "verifies submissions"
+
+    User {
+        int id PK
+        string username
+        string email
+        string password
+        string first_name
+        string last_name
+        string preferred_role
+        text bio
+        json skills
+        int xp_points
+        decimal reputation_score
+        int level
+        bool profile_completed
+        datetime onboarding_completed_at
+        bool is_seeking_team
+        json notification_preferences
+        bool is_staff
+        bool is_superuser
+        bool is_active
+        datetime date_joined
+    }
+
+    Quest {
+        int id PK
+        string title
+        string slug
+        richtext description
+        string quest_type
+        string difficulty
+        int xp_reward
+        int estimated_time_minutes
+        FK hackathon "nullable"
+        bool is_active
+        json tags
+        datetime created_at
+        datetime updated_at
+    }
+
+    Quest ||--o{ Submission : "receives submissions"
+
+    Submission {
+        int id PK
+        FK user "nullable"
+        FK team "nullable"
+        FK quest "nullable"
+        FK hackathon "nullable"
+        file submission_file
+        url submission_url
+        text description
+        string verification_status
+        decimal score
+        text feedback
+        datetime submitted_at
+        datetime verified_at
+        FK verified_by "nullable"
+        int attempt_number
+    }
+
+    %% CMS Models
+    Page ||--o{ HackathonPage : "inherits"
+    Page ||--o{ HomePage : "inherits"
+    Page ||--o{ ArticlePage : "inherits"
+    Page ||--o{ NewsListingPage : "inherits"
+
+    BasePage ||--o{ HomePage : "inherits"
+    BasePage ||--o{ ArticlePage : "inherits"
+    BasePage ||--o{ NewsListingPage : "inherits"
+
+    HomePage {
+        int id PK
+        text introduction
+        streamfield hero_cta
+        streamfield body
+        text featured_section_title
+    }
+
+    HomePage ||--o{ PageRelatedPage : "has featured pages"
+
+    ArticlePage {
+        int id PK
+        FK author FK
+        FK topic FK
+        datetime publication_date
+        text introduction
+        streamfield image
+        streamfield body
+        text featured_section_title
+    }
+
+    ArticlePage ||--o{ PageRelatedPage : "has related pages"
+
+    NewsListingPage {
+        int id PK
+        richtext introduction
+    }
+
+    NewsListingPage ||--o{ ArticlePage : "lists articles"
+
+    %% Snippet Models
+    AuthorSnippet {
+        int id PK
+        string title
+        FK image
+        uuid translation_key
+        FK locale
+    }
+
+    ArticleTopic {
+        int id PK
+        string title
+        string slug
+        uuid translation_key
+        FK locale
+    }
+
+    AuthorSnippet ||--o{ ArticlePage : "authors"
+    ArticleTopic ||--o{ ArticlePage : "categorizes"
+
+    Statistic {
+        int id PK
+        string statistic
+        string description
+        uuid translation_key
+        FK locale
+    }
+
+    %% Image Models
+    CustomImage {
+        int id PK
+        string title
+        file file
+        int width
+        int height
+        datetime created_at
+    }
+
+    CustomImage ||--o{ Rendition : "has renditions"
+    CustomImage ||--o{ HackathonPage : "used as cover"
+    CustomImage ||--o{ HomePage : "used in page"
+    CustomImage ||--o{ ArticlePage : "used in page"
+    CustomImage ||--o{ AuthorSnippet : "used as avatar"
+
+    Rendition {
+        int id PK
+        FK image FK
+        string filter_spec
+        file file
+        int width
+        int height
+        string focal_point_key
+    }
+
+    %% Settings Models
+    NavigationSettings {
+        int id PK
+        streamfield primary_navigation
+        streamfield footer_navigation
+        uuid translation_key
+        FK locale
+    }
+
+    SocialMediaSettings {
+        int id PK
+        string twitter_handle
+        string linkedin_handle
+        string instagram_handle
+        string tiktok_handle
+        string facebook_app_id
+        string default_sharing_text
+        uuid translation_key
+        FK locale
+    }
+
+    SystemMessagesSettings {
+        int id PK
+        string title_404
+        richtext body_404
+        FK placeholder_image
+        string footer_newsletter_signup_title
+        string footer_newsletter_signup_description
+        url footer_newsletter_signup_link
+        uuid translation_key
+        FK locale
+    }
+
+    SystemMessagesSettings }o--|| CustomImage : "uses placeholder"
+
+    %% Orderable Models
+    PageRelatedPage {
+        int id PK
+        FK parent FK
+        FK page FK
+        int sort_order
+    }
+
+    Page ||--o{ PageRelatedPage : "has related pages"
+
+    %% Legend
+    %% || : one (mandatory)
+    %% |o : zero or one
+    %% }o : zero or many
+    %% }| : one or many
+    %% o{ : many (on the "many" side of a relationship)
