@@ -25,6 +25,7 @@ Context variables expected:
         {% endif %}
     </div>
 
+    {# Note: Requires Alpine.js loaded in base template for auto-submit functionality #}
     <form method="get" action="" x-data="{ autoSubmit: false }" @change="autoSubmit && $el.submit()">
         <!-- Difficulty Filter -->
         <div class="filter-section mb-gh-6">
@@ -317,7 +318,7 @@ Context variables expected:
             {% for quest in recommended_quests|slice:":5" %}
             <a href="{{ quest.url }}" class="block p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 hover:border-gh-accent-emphasis dark:hover:border-gh-accent-muted transition-all">
                 <div class="flex items-start justify-between mb-gh-2">
-                    <h3 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white line-clamp-2">{{ quest.title }}</h3>
+                    <h3 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white truncate-3-lines">{{ quest.title }}</h3>
                     {% if quest.difficulty %}
                     <span class="badge-gh {% if quest.difficulty == 'easy' %}badge-gh-success{% elif quest.difficulty == 'medium' %}badge-gh-warning{% elif quest.difficulty == 'hard' %}badge-gh-danger{% endif %} text-xs shrink-0 ml-gh-2">
                         {{ quest.get_difficulty_display|default:quest.difficulty|capfirst }}

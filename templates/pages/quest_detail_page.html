@@ -171,6 +171,11 @@ Context variables expected:
                                 placeholder="https://github.com/username/repo"
                                 value="{{ user_submission.repository_url|default:'' }}"
                                 class="w-full px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-600 rounded-gh bg-gh-bg-default dark:bg-gray-800 text-gh-neutral-default dark:text-gray-200 placeholder-gh-neutral-muted dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:border-transparent">
+                            {% if form.repository_url.errors %}
+                            <div class="text-gh-danger-fg dark:text-gh-danger-muted text-sm mt-1">
+                                {{ form.repository_url.errors }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div>
@@ -183,6 +188,11 @@ Context variables expected:
                                 rows="4"
                                 placeholder="Describe your approach and any challenges you faced..."
                                 class="w-full px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-600 rounded-gh bg-gh-bg-default dark:bg-gray-800 text-gh-neutral-default dark:text-gray-200 placeholder-gh-neutral-muted dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:border-transparent">{{ user_submission.description|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                            <div class="text-gh-danger-fg dark:text-gh-danger-muted text-sm mt-1">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div>
@@ -196,13 +206,19 @@ Context variables expected:
                                 placeholder="https://your-demo.com"
                                 value="{{ user_submission.demo_url|default:'' }}"
                                 class="w-full px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-600 rounded-gh bg-gh-bg-default dark:bg-gray-800 text-gh-neutral-default dark:text-gray-200 placeholder-gh-neutral-muted dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted focus:border-transparent">
+                            {% if form.demo_url.errors %}
+                            <div class="text-gh-danger-fg dark:text-gh-danger-muted text-sm mt-1">
+                                {{ form.demo_url.errors }}
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="flex gap-gh-3">
                             <button type="submit" class="btn-gh btn-gh-primary">
                                 {% if user_submission %}Update Submission{% else %}Submit Solution{% endif %}
                             </button>
-                            <button type="button" onclick="window.location.href='{% url 'quest_list' %}'" class="btn-gh bg-gh-bg-subtle dark:bg-gray-700 text-gh-neutral-emphasis dark:text-white border border-gh-border-default dark:border-gray-600 hover:bg-gh-bg-muted dark:hover:bg-gray-600">
+                            <button type="button" onclick="window.location.href='#'" class="btn-gh bg-gh-bg-subtle dark:bg-gray-700 text-gh-neutral-emphasis dark:text-white border border-gh-border-default dark:border-gray-600 hover:bg-gh-bg-muted dark:hover:bg-gray-600">
+                                {# TODO: Implement quest_list URL - {% url 'quest_list' %} #}
                                 Cancel
                             </button>
                         </div>
@@ -257,7 +273,8 @@ Context variables expected:
                                         {% endif %}
                                     </td>
                                     <td class="px-gh-4 py-gh-3">
-                                        <a href="{% url 'user_profile' entry.user.username %}" class="font-medium text-gh-accent-fg dark:text-gh-accent-muted hover:text-gh-accent-emphasis dark:hover:text-gh-accent-fg hover:underline">
+                                        <a href="#" class="font-medium text-gh-accent-fg dark:text-gh-accent-muted hover:text-gh-accent-emphasis dark:hover:text-gh-accent-fg hover:underline">
+                                            {# TODO: Implement user_profile URL - {% url 'user_profile' entry.user.username %} #}
                                             {{ entry.user.get_full_name|default:entry.user.username }}
                                         </a>
                                     </td>
@@ -308,7 +325,7 @@ Context variables expected:
                         {% for related_quest in related_quests|slice:":4" %}
                         <a href="{{ related_quest.url }}" class="block p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 hover:border-gh-accent-emphasis dark:hover:border-gh-accent-muted transition-all">
                             <div class="flex items-start justify-between mb-gh-2">
-                                <h4 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white line-clamp-2">
+                                <h4 class="text-sm font-semibold text-gh-neutral-emphasis dark:text-white truncate-2-lines">
                                     {{ related_quest.title }}
                                 </h4>
                                 {% if related_quest.difficulty %}
