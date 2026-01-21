@@ -15,6 +15,7 @@ Context variables expected:
   - seeking_count, recruiting_count
 - hackathons: list of active hackathons for filter dropdown
   - id, title
+- available_skills: list of available skills for the skills filter dropdown
 #}
 
 {% block navigation_sidebar %}
@@ -85,14 +86,11 @@ Context variables expected:
                 class="w-full text-sm px-gh-3 py-gh-2 border border-gh-border-default dark:border-gray-700 rounded-gh bg-white dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default focus:outline-none focus:ring-2 focus:ring-gh-accent-emphasis dark:focus:ring-gh-accent-muted"
                 onchange="this.form.submit()"
             >
-                <option value="python" {% if 'python' in filters.skills %}selected{% endif %}>Python</option>
-                <option value="javascript" {% if 'javascript' in filters.skills %}selected{% endif %}>JavaScript</option>
-                <option value="react" {% if 'react' in filters.skills %}selected{% endif %}>React</option>
-                <option value="django" {% if 'django' in filters.skills %}selected{% endif %}>Django</option>
-                <option value="machine-learning" {% if 'machine-learning' in filters.skills %}selected{% endif %}>Machine Learning</option>
-                <option value="ui-ux" {% if 'ui-ux' in filters.skills %}selected{% endif %}>UI/UX Design</option>
-                <option value="product-management" {% if 'product-management' in filters.skills %}selected{% endif %}>Product Management</option>
-                <option value="marketing" {% if 'marketing' in filters.skills %}selected{% endif %}>Marketing</option>
+                {% for skill in available_skills %}
+                <option value="{{ skill }}" {% if skill in filters.skills %}selected{% endif %}>
+                    {{ skill|title }}
+                </option>
+                {% endfor %}
             </select>
             <p class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mt-gh-2">
                 Hold Ctrl/Cmd to select multiple
@@ -143,7 +141,7 @@ Context variables expected:
     </h1>
 
     <!-- Tab Toggle with Alpine.js -->
-    <div x-data="{ activeTab: 'seeking' }" class="mb-gh-6">
+    <div x-data="{ activeTab: 'seeking' }" x-cloak class="mb-gh-6">
         <!-- Segmented Control for Tabs -->
         <div class="inline-flex rounded-gh border border-gh-border-default dark:border-gray-700 overflow-hidden mb-gh-6">
             <button
@@ -200,7 +198,7 @@ Context variables expected:
                                 </a>
                             </h3>
                             {% if user.role %}
-                            <span class="badge-gh {% if user.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif user.role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif user.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% else %}bg-gh-bg-subtle text-gh-neutral-emphasis dark:bg-gray-800 dark:text-gh-neutral-default{% endif %}">
+                            <span class="badge-gh {% if user.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif user.role == 'hipster' %}badge-gh-warning{% elif user.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% else %}bg-gh-bg-subtle text-gh-neutral-emphasis dark:bg-gray-800 dark:text-gh-neutral-default{% endif %}">
                                 {{ user.get_role_display|default:user.role|capfirst }}
                             </span>
                             {% endif %}
@@ -284,7 +282,7 @@ Context variables expected:
                 {% for team in recruiting_teams %}
                 <article class="team-card card-gh p-gh-6 hover:shadow-gh-card-hover transition-shadow">
                     <h3 class="text-xl font-semibold mb-2 text-gh-neutral-emphasis dark:text-white">
-                        <a href="{% url 'team_detail' team.slug %}" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">{{ team.name }}</a>
+                        <a href="#" {# TODO: {% url 'team_detail' team.slug %} #} class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">{{ team.name }}</a>
                     </h3>
                     {% if team.tagline %}
                     <p class="text-sm text-gh-neutral-default dark:text-gh-neutral-default mb-4">{{ team.tagline }}</p>
@@ -309,7 +307,7 @@ Context variables expected:
                         <h4 class="text-xs font-semibold text-gh-neutral-muted dark:text-gh-neutral-muted uppercase tracking-wide mb-gh-2">Looking For</h4>
                         <div class="flex flex-wrap gap-gh-2">
                             {% for role in team.needed_roles %}
-                            <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh {% if role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
+                            <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh {% if role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif role == 'hipster' %}badge-gh-warning{% elif role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
                                 {{ role|capfirst }}
                             </span>
                             {% endfor %}
@@ -326,7 +324,7 @@ Context variables expected:
 
                     <!-- Action Button -->
                     <div>
-                        <a href="{% url 'team_detail' team.slug %}" class="btn-gh btn-gh-primary w-full text-center">
+                        <a href="#" {# TODO: {% url 'team_detail' team.slug %} #} class="btn-gh btn-gh-primary w-full text-center">
                             View Team
                         </a>
                     </div>
@@ -416,7 +414,7 @@ Context variables expected:
             {% if current_user_profile.role %}
             <div>
                 <div class="text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-1">Role</div>
-                <span class="badge-gh {% if current_user_profile.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif current_user_profile.role == 'hipster' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% elif current_user_profile.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
+                <span class="badge-gh {% if current_user_profile.role == 'hacker' %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% elif current_user_profile.role == 'hipster' %}badge-gh-warning{% elif current_user_profile.role == 'hustler' %}bg-gh-success-subtle text-gh-success-fg dark:bg-gh-success-emphasis dark:text-white{% endif %}">
                     {{ current_user_profile.role|capfirst }}
                 </span>
             </div>
@@ -444,7 +442,7 @@ Context variables expected:
             </div>
             {% endif %}
 
-            <a href="{% url 'account_profile' %}" class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 text-center w-full text-sm">
+            <a href="#" {# TODO: {% url 'account_profile' %} #} class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 text-center w-full text-sm">
                 Edit Profile
             </a>
         </div>
