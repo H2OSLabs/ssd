@@ -1,0 +1,75 @@
+<article class="quest-card card-gh p-gh-6 hover:shadow-gh-card-hover transition-shadow">
+    <div class="flex items-start justify-between mb-gh-3">
+        <h3 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white">
+            <a href="{{ quest.url }}" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">
+                {{ quest.title }}
+            </a>
+        </h3>
+
+        {% if quest.difficulty %}
+        <span class="badge-gh {% if quest.difficulty == 'easy' %}badge-gh-success{% elif quest.difficulty == 'medium' %}badge-gh-warning{% elif quest.difficulty == 'hard' %}badge-gh-danger{% else %}bg-gh-accent-subtle text-gh-accent-fg dark:bg-gh-accent-emphasis dark:text-white{% endif %} shrink-0">
+            {{ quest.get_difficulty_display|default:quest.difficulty|capfirst }}
+        </span>
+        {% endif %}
+    </div>
+
+    <div class="flex items-center gap-gh-3 mb-gh-4">
+        <!-- XP Reward -->
+        <div class="flex items-center gap-gh-1 text-sm text-gh-accent-fg dark:text-gh-accent-muted">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            <span class="font-semibold">{{ quest.xp_reward }} XP</span>
+        </div>
+
+        <!-- Estimated Time -->
+        {% if quest.estimated_hours %}
+        <div class="flex items-center gap-gh-1 text-sm text-gh-neutral-muted dark:text-gh-neutral-muted">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>~{{ quest.estimated_hours }}h</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Skills Tags -->
+    {% if quest.skills %}
+    <div class="flex flex-wrap gap-gh-2 mb-gh-4">
+        {% for skill in quest.skills|slice:":5" %}
+        <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700">
+            {{ skill }}
+        </span>
+        {% endfor %}
+        {% if quest.skills|length > 5 %}
+        <span class="inline-flex items-center px-gh-2 py-1 text-xs font-medium rounded-gh text-gh-neutral-muted dark:text-gh-neutral-muted">
+            +{{ quest.skills|length|add:"-5" }} more
+        </span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Progress Bar (if in progress) -->
+    {% if quest.progress is not None %}
+    <div class="mb-gh-4">
+        <div class="flex items-center justify-between text-xs text-gh-neutral-muted dark:text-gh-neutral-muted mb-gh-1">
+            <span>Progress</span>
+            <span class="font-semibold">{{ quest.progress }}%</span>
+        </div>
+        <div class="w-full bg-gh-bg-subtle dark:bg-gray-800 rounded-full h-2 overflow-hidden border border-gh-border-default dark:border-gray-700">
+            <div class="bg-gh-accent-emphasis dark:bg-gh-accent-muted h-full transition-all" style="width: {{ quest.progress }}%"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA Button -->
+    <div class="flex items-center justify-between">
+        <a href="{{ quest.url }}" class="btn-gh btn-gh-primary">
+            {% if quest.progress is not None %}
+                Continue Quest
+            {% else %}
+                Start Quest
+            {% endif %}
+        </a>
+    </div>
+</article>

@@ -1,0 +1,45 @@
+<nav aria-label="Breadcrumb" class="breadcrumb-nav py-gh-3">
+    <ol class="flex items-center gap-gh-2 text-sm flex-wrap">
+        {% for breadcrumb in breadcrumbs %}
+        <li class="flex items-center gap-gh-2">
+            {% if not forloop.last %}
+                <!-- Clickable breadcrumb item -->
+                <a href="{{ breadcrumb.url }}" class="text-gh-accent-fg dark:text-gh-accent-muted hover:underline hover:bg-gh-bg-muted dark:hover:bg-gray-800 px-gh-2 py-1 rounded-gh transition-colors {% if forloop.counter > 1 %}hidden sm:inline{% endif %}">
+                    {{ breadcrumb.name }}
+                </a>
+
+                <!-- Chevron separator -->
+                <svg class="w-4 h-4 text-gh-neutral-muted dark:text-gh-neutral-muted shrink-0 {% if forloop.counter > 1 %}hidden sm:block{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            {% else %}
+                <!-- Last item (current page) - not clickable -->
+                <span class="text-gh-neutral-emphasis dark:text-white font-semibold px-gh-2 py-1" aria-current="page">
+                    {{ breadcrumb.name }}
+                </span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</nav>
+
+<!-- Mobile truncation: Show ellipsis for middle items on small screens -->
+<style>
+@media (max-width: 640px) {
+    .breadcrumb-nav ol {
+        max-width: 100%;
+    }
+
+    .breadcrumb-nav li:not(:first-child):not(:last-child) a,
+    .breadcrumb-nav li:not(:first-child):not(:last-child) svg {
+        display: none;
+    }
+
+    /* Show ellipsis if there are more than 2 items */
+    .breadcrumb-nav ol li:nth-child(2)::after {
+        content: '...';
+        color: var(--color-neutral-muted);
+        padding: 0 0.5rem;
+    }
+}
+</style>
