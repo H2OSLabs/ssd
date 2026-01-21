@@ -3,7 +3,26 @@
 @tailwind utilities;
 
 @layer base {
-    // TODO load fonts 
+    // CSS Custom Properties for Theme Switching
+    :root {
+        --fgColor-default: #1f2328;
+        --fgColor-muted: #57606a;
+        --fgColor-accent: #0969da;
+        --bgColor-default: #ffffff;
+        --bgColor-muted: #f6f8fa;
+        --borderColor-default: #d1d9e0;
+    }
+
+    .dark {
+        --fgColor-default: #e6edf3;
+        --fgColor-muted: #8d96a0;
+        --fgColor-accent: #4493f8;
+        --bgColor-default: #0d1117;
+        --bgColor-muted: #161b22;
+        --borderColor-default: #3d444d;
+    }
+
+    // TODO load fonts
     // @font-face {
     //     font-family: "Source Sans 3", sans-serif;
     //     font-optical-sizing: auto;
@@ -138,6 +157,103 @@
 
         &.mobile-menu-is-open {
             @apply text-white;
+        }
+    }
+
+    // GitHub-style Button Components
+    .btn-gh {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-gh;
+        @apply border transition-colors duration-200 ease-in-out;
+        @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+
+        &-primary {
+            @apply btn-gh;
+            @apply bg-gh-accent-fg text-white border-gh-accent-fg;
+            @apply hover:bg-gh-accent-emphasis;
+            @apply focus-visible:outline-gh-accent-fg;
+        }
+
+        &-secondary {
+            @apply btn-gh;
+            @apply bg-gh-bg-default text-gh-neutral-default border-gh-border-default;
+            @apply hover:bg-gh-bg-muted hover:border-gh-border-muted;
+            @apply dark:bg-gh-neutral-emphasis dark:text-gh-neutral-muted;
+            @apply dark:hover:bg-gh-bg-muted;
+        }
+
+        &-danger {
+            @apply btn-gh;
+            @apply bg-gh-danger-fg text-white border-gh-danger-fg;
+            @apply hover:bg-gh-danger-emphasis;
+            @apply focus-visible:outline-gh-danger-fg;
+        }
+
+        &-invisible {
+            @apply btn-gh;
+            @apply bg-transparent text-gh-neutral-default border-transparent;
+            @apply hover:bg-gh-bg-muted;
+            @apply dark:text-gh-neutral-muted dark:hover:bg-gh-bg-muted;
+        }
+    }
+
+    // GitHub-style Card Component
+    .card-gh {
+        @apply bg-gh-bg-default border border-gh-border-default rounded-gh-lg overflow-hidden;
+        @apply shadow-gh-card hover:shadow-gh-card-hover transition-shadow duration-200;
+        @apply dark:bg-gh-neutral-emphasis dark:border-gh-border-default;
+
+        &-header {
+            @apply px-4 py-3 border-b border-gh-border-default bg-gh-bg-muted;
+            @apply dark:bg-gh-bg-muted dark:border-gh-border-default;
+        }
+
+        &-body {
+            @apply px-4 py-3;
+        }
+
+        &-footer {
+            @apply px-4 py-3 border-t border-gh-border-default bg-gh-bg-muted;
+            @apply dark:bg-gh-bg-muted dark:border-gh-border-default;
+        }
+    }
+
+    // GitHub-style Badge Components
+    .badge-gh {
+        @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded-full;
+        @apply border;
+
+        &-success {
+            @apply badge-gh;
+            @apply bg-gh-success-subtle text-gh-success-fg border-gh-success-muted;
+        }
+
+        &-danger {
+            @apply badge-gh;
+            @apply bg-gh-danger-subtle text-gh-danger-fg border-gh-danger-muted;
+        }
+
+        &-warning {
+            @apply badge-gh;
+            @apply bg-yellow-100 text-yellow-800 border-yellow-300;
+            @apply dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700;
+        }
+
+        &-hacker {
+            @apply badge-gh;
+            @apply bg-purple-100 text-purple-800 border-purple-300;
+            @apply dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700;
+        }
+
+        &-hipster {
+            @apply badge-gh;
+            @apply bg-pink-100 text-pink-800 border-pink-300;
+            @apply dark:bg-pink-900 dark:text-pink-200 dark:border-pink-700;
+        }
+
+        &-hustler {
+            @apply badge-gh;
+            @apply bg-blue-100 text-blue-800 border-blue-300;
+            @apply dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700;
         }
     }
 }

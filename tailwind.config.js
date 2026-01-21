@@ -7,6 +7,12 @@ module.exports = {
         './templates/**/*.html',
         './static_src/**/*.{js,ts}',
     ],
+    safelist: [
+        // Preserve GitHub-style component classes
+        { pattern: /^btn-gh/ },
+        { pattern: /^card-gh/ },
+        { pattern: /^badge-gh/ },
+    ],
     theme: {
         // Properties directly inside of theme will overwrite all tailwinds default properties for that attribute
         screens: {
