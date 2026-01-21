@@ -19,6 +19,7 @@ Wagtail CMS 开发最佳实践指南（Wagtail 6.0+, 7.x, Django 5.x）
 | "TableBlock 很方便" | TableBlock 无类型，后续维护成本高 |
 | "API 能返回 JSON 就行" | RichText/ImageBlock **必须**配置序列化器 |
 | "手写 API 更简单" | Wagtail API v2 功能更完整，开发**更快** |
+| "Django view + URLconf 更简单" | 混合路由系统，listing page 无法管理 |
 | "翻译留到最后做" | 翻译 = 技术架构的一部分，必须同步 |
 | "代码里用中文更方便" | msgid **必须**用英文，否则翻译系统崩溃 |
 | "先不管翻译，页面能显示就行" | 不翻译 = 中英文混用 = 用户体验灾难 |
@@ -46,10 +47,94 @@ digraph page_vs_snippet {
 
 **Examples**:
 - 独立 URL → **Page** (BlogPost, EventPage, ProductPage)
+- Listing page with URL → **Index Page** (BlogIndexPage, EventIndexPage)
 - 复用数据，无 URL → **Snippet** (Author, Category, Tag)
 - 纯数据，无 Wagtail 特性 → **Django Model** (EventParticipant, Order)
 
-### Decision 2: Wagtail API v2 vs 手写 API
+### Decision 2: Index Page vs Django View
+
+**For listing pages, ALWAYS use Wagtail Index Page**, never Django view + URLconf.
+
+```dot
+digraph index_page_decision {
+    "需要 listing page?" [shape=diamond];
+    "需要在 admin 管理?" [shape=diamond];
+    "Index Page" [shape=box, style=filled, fillcolor=lightgreen];
+    "Django View" [shape=box, style=filled, fillcolor=red];
+
+    "需要 listing page?" -> "需要在 admin 管理?" [label="yes"];
+    "需要在 admin 管理?" -> "Index Page" [label="yes"];
+    "需要在 admin 管理?" -> "Django View" [label="no (API only)"];
+}
+```
+
+**Why Index Page?**
+- ✅ 在 Wagtail admin 页面树中可见、可管理
+- ✅ 编辑可添加 intro、featured items 等内容
+- ✅ 内置 SEO 字段（meta description、search image）
+- ✅ 统一的 Wagtail 路由，无需手写 URLconf
+- ✅ 权限控制通过 Wagtail 权限系统
+- ✅ 符合 Wagtail 架构哲学
+
+**Anti-pattern example**:
+```python
+# ❌ Bad: Django view for listing
+# urls.py
+urlpatterns = [
+    path('events/', views.event_list, name='event_list'),
+]
+
+# views.py
+def event_list(request):
+    events = EventPage.objects.live().public()
+    return render(request, 'events/event_list.html', {'events': events})
+```
+
+**Problems**:
+- ❌ Not visible in Wagtail admin
+- ❌ Editors cannot manage content
+- ❌ Mixed routing systems (Django + Wagtail)
+- ❌ No SEO control
+
+**Correct pattern**:
+```python
+# ✅ Good: Index Page
+class EventIndexPage(Page):
+    intro = RichTextField(blank=True)
+    featured_event = models.ForeignKey(
+        'EventPage',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('featured_event'),
+    ]
+
+    subpage_types = ['events.EventPage']
+    max_count = 1
+
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['events'] = EventPage.objects.live().public()
+        return context
+
+class EventPage(Page):
+    parent_page_types = ['events.EventIndexPage']
+```
+
+**When Django views ARE ok**:
+- API endpoints (non-content)
+- Form processing
+- AJAX requests
+- Webhooks
+
+**See**: `references/anti-patterns.md` (Anti-Pattern 7) for detailed comparison.
+
+### Decision 3: Wagtail API v2 vs 手写 API
 
 **永远使用 Wagtail API v2** for Headless projects.
 

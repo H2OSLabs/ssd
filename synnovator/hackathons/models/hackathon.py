@@ -7,6 +7,61 @@ from wagtail import blocks
 from modelcluster.fields import ParentalKey
 
 
+class HackathonIndexPage(Page):
+    """
+    Index page for listing all hackathons.
+    Follows Wagtail Index Page pattern - managed in admin, part of page tree.
+
+    Usage: Create one instance at /hackathons/
+    """
+
+    # Editable intro content
+    intro = RichTextField(
+        blank=True,
+        help_text="Introduction text displayed at the top of the hackathons listing page"
+    )
+
+    # Featured hackathon (optional)
+    featured_hackathon = models.ForeignKey(
+        'HackathonPage',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        help_text="Select a hackathon to feature at the top of the page"
+    )
+
+    # Content panels for Wagtail admin
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('featured_hackathon'),
+    ]
+
+    # Page type constraints
+    subpage_types = ['hackathons.HackathonPage']
+    max_count = 1  # Only allow one index page
+
+    class Meta:
+        verbose_name = "Hackathon Index Page"
+        verbose_name_plural = "Hackathon Index Pages"
+
+    def get_context(self, request):
+        """Add hackathons queryset to template context"""
+        context = super().get_context(request)
+
+        # Get all published hackathons, ordered by newest first
+        hackathons = HackathonPage.objects.live().public().order_by('-first_published_at')
+
+        # Separate featured hackathon from regular list
+        if self.featured_hackathon and self.featured_hackathon.live:
+            context['featured'] = self.featured_hackathon
+            # Exclude featured from regular list
+            hackathons = hackathons.exclude(id=self.featured_hackathon.id)
+
+        context['hackathons'] = hackathons
+        return context
+
+
 class HackathonPage(Page):
     """
     Wagtail page model for hackathon events.
@@ -85,6 +140,7 @@ class HackathonPage(Page):
         FieldPanel('body'),
         InlinePanel('phases', label="Hackathon Phases", help_text="Add timeline phases (registration, hacking, judging, etc.)"),
         InlinePanel('prizes', label="Prizes", help_text="Add prizes and awards"),
+        InlinePanel('rules', label="Competition Rules", help_text="Define competition rules and constraints"),
         MultiFieldPanel([
             FieldPanel('min_team_size'),
             FieldPanel('max_team_size'),
@@ -96,6 +152,9 @@ class HackathonPage(Page):
         ], heading="Scoring Settings"),
         FieldPanel('status'),
     ]
+
+    # Page type constraints - only allow as child of HackathonIndexPage
+    parent_page_types = ['hackathons.HackathonIndexPage']
 
     class Meta:
         verbose_name = "Hackathon"

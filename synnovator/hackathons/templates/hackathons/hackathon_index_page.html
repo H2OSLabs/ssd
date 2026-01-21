@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+<div class="site-container px-10 md:px-20 py-16">
+    {# Page title from Wagtail Page model #}
+    <h1 class="text-4xl font-bold mb-8">{{ page.title }}</h1>
+
+    {# Optional intro text #}
+    {% if page.intro %}
+        <div class="prose max-w-none mb-12">
+            {{ page.intro|richtext }}
+        </div>
+    {% endif %}
+
+    {# Featured hackathon (if set) #}
+    {% if featured %}
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Featured Hackathon</h2>
+            <div class="featured-event">
+                {% include "components/event-card.html" with event=featured %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# All hackathons grid #}
+    <h2 class="text-2xl font-bold mb-6">{% if featured %}All Hackathons{% else %}Hackathons{% endif %}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for hackathon in hackathons %}
+            {% include "components/event-card.html" with event=hackathon %}
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500 py-8">No hackathons available yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

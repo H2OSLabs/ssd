@@ -116,10 +116,48 @@ class Submission(models.Model):
         help_text="Submission attempt count"
     )
 
+    # P2: Copyright and Originality Checking
+    copyright_declaration = models.BooleanField(
+        default=False,
+        help_text="User confirms ownership or proper licensing of submitted content"
+    )
+
+    copyright_notes = models.TextField(
+        blank=True,
+        help_text="Additional copyright information or licensing details"
+    )
+
+    originality_check_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('not_checked', 'Not Checked'),
+            ('checking', 'Checking'),
+            ('pass', 'Passed'),
+            ('warning', 'Warning - Similarity Detected'),
+            ('fail', 'Failed - Plagiarism Detected'),
+        ],
+        default='not_checked',
+        help_text="Automated originality verification status"
+    )
+
+    originality_check_result = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Detailed originality check results (similarity score, sources)"
+    )
+
+    file_transfer_confirmed = models.BooleanField(
+        default=False,
+        help_text="User confirmed file upload completed successfully"
+    )
+
     panels = [
         FieldPanel('verification_status'),
         FieldPanel('score'),
         FieldPanel('feedback'),
+        FieldPanel('copyright_declaration'),
+        FieldPanel('copyright_notes'),
+        FieldPanel('originality_check_status'),
     ]
 
     class Meta:

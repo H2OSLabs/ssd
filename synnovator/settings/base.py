@@ -32,12 +32,15 @@ if "CSRF_TRUSTED_ORIGINS" in os.environ:
 # Application definition
 
 INSTALLED_APPS = [
+    "synnovator.assets",
+    "synnovator.community",
     "synnovator.forms",
     "synnovator.hackathons",
     "synnovator.home",
     "synnovator.images",
     "synnovator.navigation",
     "synnovator.news",
+    "synnovator.notifications",
     "synnovator.search",
     "synnovator.standardpages",
     "synnovator.users",

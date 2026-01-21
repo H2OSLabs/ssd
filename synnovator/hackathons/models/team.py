@@ -70,6 +70,8 @@ class Team(models.Model):
             ('ready', 'Ready'),
             ('submitted', 'Submitted'),
             ('verified', 'Verified'),
+            ('advanced', 'Advanced to Next Round'),
+            ('eliminated', 'Eliminated'),
             ('disqualified', 'Disqualified'),
         ],
         default='forming'
@@ -78,6 +80,17 @@ class Team(models.Model):
     is_seeking_members = models.BooleanField(
         default=True,
         help_text="Show in team formation page"
+    )
+
+    # Advancement tracking
+    elimination_reason = models.TextField(
+        blank=True,
+        help_text="Reason for elimination or disqualification"
+    )
+
+    current_round = models.PositiveIntegerField(
+        default=1,
+        help_text="Current competition round"
     )
 
     # Timestamps
@@ -107,6 +120,35 @@ class Team(models.Model):
             self.members.count() < self.hackathon.max_team_size and
             self.status == 'forming'
         )
+
+    def update_scores(self):
+        """Update aggregated scores from judge scores"""
+        from django.db.models import Avg
+
+        # Get all submissions for this team
+        submissions = self.submissions.filter(verification_status='verified')
+
+        # Calculate average scores across all judge scores for all submissions
+        for submission in submissions:
+            judge_scores = submission.judge_scores.all()
+            if judge_scores.exists():
+                avg_scores = judge_scores.aggregate(
+                    tech=Avg('technical_score'),
+                    comm=Avg('commercial_score'),
+                    oper=Avg('operational_score')
+                )
+
+                # Update team scores (average across all submissions)
+                self.technical_score = avg_scores['tech'] or 0.0
+                self.commercial_score = avg_scores['comm'] or 0.0
+                self.operational_score = avg_scores['oper'] or 0.0
+                self.final_score = (
+                    self.technical_score +
+                    self.commercial_score +
+                    self.operational_score
+                ) / 3
+
+        self.save()
 
 
 class TeamMember(models.Model):

@@ -1,0 +1,52 @@
+{% extends "layouts/three_pane_layout.html" %}
+{% load static %}
+
+{% block navigation_sidebar %}
+    {% include "components/nav-sidebar.html" with active_section="hackathons" %}
+{% endblock %}
+
+{% block main_content %}
+    <div class="p-8">
+        <h1 class="text-3xl font-bold text-gh-neutral-default mb-4">Three-Pane Layout Test</h1>
+        <p class="text-gh-neutral-muted mb-4">
+            This is a test page for the three-pane layout with the navigation sidebar component.
+        </p>
+
+        <div class="space-y-4">
+            <div class="p-4 bg-gh-bg-subtle rounded-gh border border-gh-border-default">
+                <h2 class="font-semibold text-gh-neutral-default mb-2">Test Active States</h2>
+                <p class="text-sm text-gh-neutral-muted">
+                    Currently showing "Hackathons" as active. The navigation sidebar should highlight this section.
+                </p>
+            </div>
+
+            <div class="p-4 bg-gh-bg-subtle rounded-gh border border-gh-border-default">
+                <h2 class="font-semibold text-gh-neutral-default mb-2">Test Collapse Toggle</h2>
+                <p class="text-sm text-gh-neutral-muted">
+                    Click the double-chevron button at the bottom of the sidebar to toggle between expanded and collapsed states.
+                </p>
+            </div>
+
+            <div class="p-4 bg-gh-bg-subtle rounded-gh border border-gh-border-default">
+                <h2 class="font-semibold text-gh-neutral-default mb-2">Features</h2>
+                <ul class="text-sm text-gh-neutral-muted space-y-1 list-disc list-inside">
+                    <li>User profile section at top</li>
+                    <li>Four navigation sections: Dashboard, Hackathons, Teams, Quests</li>
+                    <li>Active state highlighting with GitHub Primer colors</li>
+                    <li>Collapsible with icon-only mode</li>
+                    <li>Smooth transitions using Alpine.js</li>
+                    <li>Heroicons inline SVG icons</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block detail_sidebar %}
+    <div class="p-6 bg-gh-bg-muted h-full">
+        <h2 class="text-lg font-semibold text-gh-neutral-default mb-4">Detail Sidebar</h2>
+        <p class="text-sm text-gh-neutral-muted">
+            This is the detail sidebar area. It's hidden on smaller screens and visible on large screens.
+        </p>
+    </div>
+{% endblock %}

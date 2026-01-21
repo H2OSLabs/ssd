@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="three-pane-layout flex min-h-screen">
-    <aside class="navigation-sidebar" x-data="{ collapsed: false }" role="navigation" aria-label="Main navigation">
+    <aside class="navigation-sidebar" x-data="{ collapsed: false }" :class="collapsed ? 'w-16' : 'w-64'" role="navigation" aria-label="Main navigation">
         {% block navigation_sidebar %}{% endblock %}
     </aside>
 

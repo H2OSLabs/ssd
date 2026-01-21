@@ -510,7 +510,199 @@ myapp/
 
 ---
 
-## Anti-Pattern 7: Missing .specific() Call
+## Anti-Pattern 7: Django Views for Page Listings
+
+### Rationalization
+
+> "需要一个 listing page，用 Django view + URLconf 更简单。"
+> "Wagtail 页面树太复杂，直接写 view 更快。"
+> "这只是个简单列表，不需要 Wagtail。"
+
+### Reality
+
+**混合路由 = 维护噩梦 + 功能缺失**
+
+**Problems**:
+1. **不可见**: Listing page 在 Wagtail admin 中不可见，编辑无法管理
+2. **无内容管理**: 无法添加 intro、hero、featured items 等内容
+3. **无 SEO 控制**: 缺少 Wagtail 的 meta description、search image 等 SEO 字段
+4. **混合系统**: Django URLconf + Wagtail routing 混用，增加复杂度
+5. **无权限控制**: 无法使用 Wagtail 的页面权限系统
+
+**Real example**:
+```python
+# ❌ Anti-pattern
+# urls.py
+urlpatterns = [
+    path('hackathons/', views.hackathon_list, name='hackathon_list'),
+]
+
+# views.py
+def hackathon_list(request):
+    hackathons = HackathonPage.objects.live().public()
+    return render(request, 'hackathons/hackathon_list.html', {
+        'hackathons': hackathons,
+    })
+```
+
+**6 months later**:
+- PM: "Can we add a featured hackathon section?"
+- Dev: "Need to modify the view... and add context variables... and update template..."
+- PM: "Why can't editors manage this in the admin?"
+- Dev: "Because it's a Django view, not a Wagtail page..."
+- **Refactoring time**: 2-3 hours
+
+### How to Detect
+
+**In code**:
+```bash
+# Check for Page models with Django view listings
+grep -r "def.*_list(request)" myapp/views.py
+
+# If listing related Page models → Likely anti-pattern
+```
+
+**In URLs**:
+```python
+# Red flag: Hardcoded listing route
+path('events/', views.event_list, name='event_list')  # ❌
+# Should be: Wagtail page handles routing automatically
+```
+
+**Questions to ask**:
+1. Does this listing page need a URL? → YES
+2. Do editors need to manage it? → YES
+3. Should it appear in page tree? → YES
+
+If YES to all → **Use Wagtail Index Page**, not Django view
+
+### How to Fix
+
+**Use Wagtail Index Page pattern**:
+
+```python
+# ✅ Correct: Index Page in Wagtail
+class HackathonIndexPage(Page):
+    """Index page for listing all hackathons"""
+
+    # Editable content fields
+    intro = RichTextField(blank=True)
+    featured_hackathon = models.ForeignKey(
+        'HackathonPage',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('featured_hackathon'),
+    ]
+
+    # Constraints
+    subpage_types = ['hackathons.HackathonPage']
+    max_count = 1
+
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['hackathons'] = HackathonPage.objects.live().public()
+        return context
+
+# Child pages only under Index
+class HackathonPage(Page):
+    parent_page_types = ['hackathons.HackathonIndexPage']
+```
+
+**Template** (hackathon_index_page.html):
+```django
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+
+    {% if page.intro %}
+        {{ page.intro|richtext }}
+    {% endif %}
+
+    {% if featured %}
+        <div class="featured">
+            {% include "components/event-card.html" with event=featured %}
+        </div>
+    {% endif %}
+
+    <div class="grid">
+        {% for hackathon in hackathons %}
+            {% include "components/event-card.html" with event=hackathon %}
+        {% endfor %}
+    </div>
+{% endblock %}
+```
+
+**Delete**:
+- ❌ Django view (views.hackathon_list)
+- ❌ URLconf entry (path('hackathons/', ...))
+- Wagtail handles routing automatically ✅
+
+### Benefits of Index Page Pattern
+
+| Django View | Wagtail Index Page |
+|------------|-------------------|
+| ❌ Not in admin | ✅ Visible in page tree |
+| ❌ Hardcoded content | ✅ Editable intro/featured |
+| ❌ No SEO fields | ✅ Built-in meta/search image |
+| ❌ Manual routing | ✅ Automatic URL routing |
+| ❌ No permissions | ✅ Wagtail permissions system |
+| ❌ Mixed systems | ✅ Unified Wagtail architecture |
+
+### Typical Wagtail Structure
+
+```
+HomePage (/)
+├─ BlogIndexPage (/blog/)          ← Index Page pattern
+│  ├─ BlogPost 1 (/blog/post-1/)
+│  └─ BlogPost 2 (/blog/post-2/)
+├─ EventIndexPage (/events/)        ← Index Page pattern
+│  ├─ EventPage 1 (/events/event-1/)
+│  └─ EventPage 2 (/events/event-2/)
+└─ HackathonIndexPage (/hackathons/) ← Index Page pattern
+   ├─ HackathonPage 1 (/hackathons/ai-challenge/)
+   └─ HackathonPage 2 (/hackathons/web3-hackathon/)
+```
+
+### When Django Views Are OK
+
+**Only use Django views for**:
+- Non-content pages (API endpoints, webhooks, form processing)
+- Dynamic actions (search, filtering, AJAX endpoints)
+- Third-party integrations (payment callbacks, OAuth)
+
+**NOT for**:
+- Content listing pages (use Index Page)
+- Static/semi-static pages (use Page)
+
+### Prevention Checklist
+
+When creating a listing page:
+
+- [ ] Does it need a URL? → Use Page, not view
+- [ ] Should editors manage it? → Use Page, not view
+- [ ] Will it have editable content? → Use Page, not view
+- [ ] Is it part of site structure? → Use Page, not view
+
+If YES to any → **Use Wagtail Index Page**, never Django view
+
+**Time to implement**:
+- Django view approach: 15 min
+- Index Page approach: 20 min (+5 min)
+- Refactoring time if wrong choice: 2-3 hours
+
+**ROI**: 5 minutes now saves 2-3 hours later
+
+---
+
+## Anti-Pattern 8: Missing .specific() Call
 
 ### Rationalization
 
@@ -575,6 +767,7 @@ articles = ArticlePage.objects.live().specific()
 | "先不急" | 永远不做 | 立即实现 +15 min |
 | "最大灵活性" | 认知负荷 | 限制 block 数量 |
 | "小项目不需要组织" | 小项目变大项目 | blocks.py +5 min |
+| "Django view 更简单" | 混合路由 = 维护噩梦 | Index Page +5 min |
 
 **Pattern**: 所有 rationalizations 都是**短期思维**
 
@@ -604,7 +797,7 @@ articles = ArticlePage.objects.live().specific()
 
 ## Summary
 
-**7 Anti-Patterns** identified from 100+ projects
+**8 Anti-Patterns** identified from 100+ projects
 
 **Common theme**: All driven by short-term thinking ("快", "先不急", "能跑就行")
 

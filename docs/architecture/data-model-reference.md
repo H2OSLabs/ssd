@@ -1,8 +1,9 @@
 # Synnovator 数据模型参考手册
 
-**版本:** 1.0
+**版本:** 2.0
 **最后更新:** 2026-01-21
-**状态:** Final
+**状态:** Final - **P0+P1+P2 已完成**
+**新增:** 17 个模型 (P0: 3个, P1: 9个, P2: 2个, 扩展: 3个)
 
 ## 1. 概述
 
@@ -10,16 +11,43 @@
 
 本文档为开发者和运营人员提供 Synnovator 平台所有数据模型的完整参考，包括字段定义、关系映射、业务逻辑和 Wagtail Admin 配置。
 
+**版本 2.0 更新:** 包含所有 P0+P1+P2 实施的新模型和扩展。
+
 ### 1.2 模型分类体系
 
 **核心业务模型 (Core Business Models):**
 - `HackathonPage`: 黑客松活动页面
+- `HackathonIndexPage`: 黑客松索引页面 ✨NEW
 - `Phase`: 活动时间表阶段
 - `Prize`: 奖项配置
-- `Team`: 参赛团队
+- `Team`: 参赛团队 ⭐EXTENDED (P0)
 - `TeamMember`: 团队成员 (Through Model)
 - `Quest`: Dojo 挑战任务
-- `Submission`: 提交内容（Quest/Hackathon）
+- `Submission`: 提交内容（Quest/Hackathon） ⭐EXTENDED (P2)
+
+**竞赛管理模型 (Competition Management) - ✨P0 NEW:**
+- `CompetitionRule`: 竞赛规则定义
+- `RuleViolation`: 违规记录
+- `AdvancementLog`: 晋级/淘汰记录
+
+**评分系统模型 (Scoring System) - ✨P1 NEW:**
+- `JudgeScore`: 评委评分
+- `ScoreBreakdown`: 评分细分
+- `HackathonRegistration`: 黑客松报名
+
+**社交功能模型 (Social Features) - ✨P1 NEW:**
+- `CommunityPost`: 社区帖子
+- `Comment`: 评论系统
+- `Like`: 点赞系统
+- `UserFollow`: 用户关注
+- `Report`: 举报系统
+
+**通知系统模型 (Notification System) - ✨P1 NEW:**
+- `Notification`: 通知中心
+
+**资产管理模型 (Asset Management) - ✨P2 NEW:**
+- `UserAsset`: 用户资产
+- `AssetTransaction`: 资产交易
 
 **内容管理模型 (CMS Models):**
 - `BasePage`: 页面基类（抽象）
@@ -44,6 +72,10 @@
 **图像模型 (Image Models):**
 - `CustomImage`: 自定义图像
 - `Rendition`: 图像渲染变体
+
+**图例:**
+- ✨NEW: P0+P1+P2 新增模型
+- ⭐EXTENDED: P0+P1+P2 扩展模型
 
 ### 1.3 关键设计模式
 
@@ -2259,11 +2291,14 @@ for membership in user_teams:
 
 ---
 
-### 7.5 模型速查索引
+### 7.5 模型速查索引 (v2.0 更新)
 
 **按应用分类:**
 
-- **hackathons**: HackathonPage, Phase, Prize, Team, TeamMember, Quest, Submission
+- **hackathons**: HackathonPage, HackathonIndexPage✨, Phase, Prize, Team⭐, TeamMember, Quest, Submission⭐, AdvancementLog✨, CompetitionRule✨, RuleViolation✨, JudgeScore✨, ScoreBreakdown✨, HackathonRegistration✨
+- **community** ✨NEW: CommunityPost, Comment, Like, UserFollow, Report
+- **notifications** ✨NEW: Notification
+- **assets** ✨NEW: UserAsset, AssetTransaction
 - **users**: User
 - **home**: HomePage
 - **news**: ArticlePage, NewsListingPage
@@ -2273,12 +2308,26 @@ for membership in user_teams:
 
 **按功能分类:**
 
-- **活动管理**: HackathonPage, Phase, Prize
-- **团队管理**: Team, TeamMember
-- **任务系统**: Quest, Submission
+- **活动管理**: HackathonPage, HackathonIndexPage✨, Phase, Prize
+- **团队管理**: Team⭐, TeamMember, HackathonRegistration✨
+- **任务系统**: Quest, Submission⭐
+- **竞赛管理** ✨NEW: CompetitionRule, RuleViolation, AdvancementLog
+- **评分系统** ✨NEW: JudgeScore, ScoreBreakdown
+- **社交功能** ✨NEW: CommunityPost, Comment, Like, UserFollow, Report
+- **通知系统** ✨NEW: Notification
+- **资产管理** ✨NEW: UserAsset, AssetTransaction
 - **用户系统**: User
 - **内容管理**: HomePage, ArticlePage, NewsListingPage
 - **媒体管理**: CustomImage, Rendition
+
+**按优先级分类:**
+
+- **P0 (赛规与晋级)**: AdvancementLog, CompetitionRule, RuleViolation, Team⭐
+- **P1 (社交与评分)**: CommunityPost, Comment, Like, UserFollow, Report, Notification, JudgeScore, ScoreBreakdown, HackathonRegistration
+- **P2 (资产与合规)**: UserAsset, AssetTransaction, Submission⭐ (copyright fields)
+
+✨NEW = P0+P1+P2 新增模型
+⭐ = P0+P1+P2 扩展模型
 
 ---
 
@@ -2292,20 +2341,30 @@ for membership in user_teams:
 4. **多维度评分**: 技术/商业/运营三维评估
 5. **国际化支持**: TranslatableMixin 提供多语言能力
 
-### 8.2 已知限制
+### 8.2 已实现功能 (P0+P1+P2) ✅
 
-1. **手动状态管理**: HackathonPage.status 需手动更新
-2. **缺少晋级历史**: 没有专门的模型记录晋级/淘汰决策
-3. **单一评分字段**: Submission.score 不支持多评委独立评分
-4. **缺少社交功能**: 没有评论、点赞、关注等模型
+**P0 (赛规与晋级):**
+1. ✅ **晋级历史追踪**: AdvancementLog 模型记录所有晋级/淘汰决策
+2. ✅ **赛规管理**: CompetitionRule 模型支持规则定义和自动合规检查
+3. ✅ **违规管理**: RuleViolation 模型记录和追踪违规行为
 
-### 8.3 优化方向
+**P1 (社交与评分):**
+4. ✅ **完整社交功能**: CommunityPost, Comment, Like, UserFollow, Report
+5. ✅ **多评委评分**: JudgeScore 支持独立评分，自动聚合到 Team
+6. ✅ **通知系统**: Notification 模型支持多种通知类型
+7. ✅ **报名管理**: HackathonRegistration 独立于团队的报名状态
 
-1. 添加自动状态转换（基于 Phase 时间）
-2. 创建 AdvancementLog 模型记录晋级历史
-3. 扩展多评委评分系统
-4. 添加社交互动功能（评论、点赞）
-5. 实现通知系统
+**P2 (资产与合规):**
+8. ✅ **资产管理**: UserAsset, AssetTransaction 支持虚拟资产流转
+9. ✅ **著作权检查**: Submission 扩展支持版权声明和原创性检查
+10. ✅ **日历API**: 统一的日历事件 API 端点
+
+### 8.3 剩余优化方向
+
+1. **自动状态转换**: 添加 Celery 定时任务基于 Phase 时间自动更新 HackathonPage.status
+2. **AI 辅助合规**: 集成 AI 模型进行文件内容合规检查
+3. **企业悬赏**: BountyQuest 模型支持企业发布悬赏任务
+4. **性能优化**: 添加 Redis 缓存层优化排行榜和热门内容查询
 
 ---
 
@@ -2319,6 +2378,8 @@ for membership in user_teams:
 5. 更新运营需求支持情况
 
 **相关文档:**
+- [p0-p1-p2-models.md](./p0-p1-p2-models.md) - **P0+P1+P2 扩展模型完整文档** ✨NEW
 - [model-relationships.mmd](./model-relationships.mmd) - ER 图
 - [requirements-coverage.md](../operational/requirements-coverage.md) - 运营需求覆盖分析
+- [IMPLEMENTATION_SUMMARY.md](../../IMPLEMENTATION_SUMMARY.md) - P0+P1+P2 实施总结
 - [translation-guide.md](../translation-guide.md) - 国际化指南
