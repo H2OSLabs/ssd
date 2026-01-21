@@ -26,6 +26,41 @@ module.exports = {
             ...colors,
             'white': '#FFFFFF',
             'black': '#000000',
+            // GitHub Primer Light Theme
+            'gh-accent': {
+                fg: '#0969da',
+                emphasis: '#0550ae',
+                muted: '#54aeff',
+                subtle: '#ddf4ff',
+            },
+            'gh-success': {
+                fg: '#1a7f37',
+                emphasis: '#117f32',
+                muted: '#4ac26b',
+                subtle: '#dafbe1',
+            },
+            'gh-danger': {
+                fg: '#d1242f',
+                emphasis: '#a0111e',
+                muted: '#ff6a7a',
+                subtle: '#ffebe9',
+            },
+            'gh-neutral': {
+                default: '#1f2328',
+                muted: '#57606a',
+                subtle: '#6e7781',
+                emphasis: '#0d1117',
+            },
+            'gh-bg': {
+                default: '#ffffff',
+                muted: '#f6f8fa',
+                subtle: '#f0f3f6',
+            },
+            'gh-border': {
+                default: '#d1d9e0',
+                muted: '#d1d9e0b3',
+            },
+            // Brand colors
             'mackerel': {
                 100: '#7777774D',
                 200: '#96D7E5',
@@ -72,6 +107,22 @@ module.exports = {
         extend: {
             backgroundImage: {
                 'slash': `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='#26899E' viewBox='0 0 11 11'%3E%3Cpath d='M1.78239 10.8013L0.900391 9.99126L4.19439 6.60726L4.78839 7.14726L1.78239 10.8013ZM7.39839 4.33926L6.80439 3.79926L9.81039 0.145264L10.6924 0.955263L7.39839 4.33926Z' /%3E%3C/svg%3E");`
+            },
+            boxShadow: {
+                'gh-card': '0 1px 3px rgba(31, 35, 40, 0.12), 0 8px 24px rgba(66, 74, 83, 0.12)',
+                'gh-card-hover': '0 4px 7px rgba(31, 35, 40, 0.15), 0 12px 32px rgba(66, 74, 83, 0.15)',
+            },
+            borderRadius: {
+                'gh': '6px',
+                'gh-lg': '12px',
+            },
+            spacing: {
+                'gh-1': '4px',
+                'gh-2': '8px',
+                'gh-3': '12px',
+                'gh-4': '16px',
+                'gh-5': '20px',
+                'gh-6': '24px',
             },
         },
     }
