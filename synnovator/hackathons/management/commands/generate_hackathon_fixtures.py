@@ -26,6 +26,7 @@ from wagtail.models import Page
 from synnovator.hackathons.models import (
     HackathonPage, Phase, Prize, Team, TeamMember, Quest, Submission
 )
+from synnovator.home.models import HomePage
 
 User = get_user_model()
 fake = Faker()
@@ -85,6 +86,10 @@ class Command(BaseCommand):
         # Clear users except superusers
         User.objects.filter(is_superuser=False).delete()
 
+        # Fix Wagtail page tree after deletion (prevents tree corruption)
+        from wagtail.models import Page
+        Page.fix_tree()
+
     def generate_users(self):
         """Generate 20-30 users with varied profiles."""
         users = []
@@ -138,8 +143,15 @@ class Command(BaseCommand):
         """Generate 5 hackathons with different statuses."""
         hackathons = []
 
-        # Get home page as parent
-        home_page = Page.objects.filter(depth=2).first()
+        # Get home page as parent - use HomePage model for robustness
+        try:
+            home_page = HomePage.objects.live().first()
+            if not home_page:
+                # Fallback to any page at depth 2
+                home_page = Page.objects.filter(depth=2).first()
+        except Exception:
+            home_page = Page.objects.filter(depth=2).first()
+
         if not home_page:
             self.stdout.write(self.style.ERROR('No home page found. Please create one first.'))
             return hackathons
@@ -335,32 +347,68 @@ class Command(BaseCommand):
         for i in range(num_teams):
             hackathon = random.choice(hackathons)
             name = f"{random.choice(adjectives)} {random.choice(nouns)} {random.randint(1, 999)}"
+            status = random.choices(statuses, weights=status_weights)[0]
+
+            # Teams only get scores if they've submitted or been verified
+            if status in ['submitted', 'verified']:
+                # Bell curve around 75 with std dev of 15
+                final_score = Decimal(str(min(100, max(0, random.gauss(75, 15)))))
+                technical_score = Decimal(str(min(100, max(0, random.gauss(75, 15)))))
+                commercial_score = Decimal(str(min(100, max(0, random.gauss(75, 15)))))
+                operational_score = Decimal(str(min(100, max(0, random.gauss(75, 15)))))
+            else:
+                final_score = Decimal('0.0')
+                technical_score = Decimal('0.0')
+                commercial_score = Decimal('0.0')
+                operational_score = Decimal('0.0')
 
             team = Team.objects.create(
                 hackathon=hackathon,
                 name=name,
                 slug=slugify(f"{name}-{i}"),
                 tagline=fake.catch_phrase(),
-                status=random.choices(statuses, weights=status_weights)[0],
+                status=status,
                 is_seeking_members=random.choice([True, False]),
-                final_score=Decimal(str(random.uniform(0, 100))) if random.random() > 0.3 else Decimal('0.0'),
-                technical_score=Decimal(str(random.uniform(0, 100))) if random.random() > 0.5 else Decimal('0.0'),
-                commercial_score=Decimal(str(random.uniform(0, 100))) if random.random() > 0.5 else Decimal('0.0'),
-                operational_score=Decimal(str(random.uniform(0, 100))) if random.random() > 0.5 else Decimal('0.0'),
+                final_score=final_score,
+                technical_score=technical_score,
+                commercial_score=commercial_score,
+                operational_score=operational_score,
             )
             teams.append(team)
 
         return teams
 
     def generate_team_members(self, teams, users):
-        """Generate 80-120 team members with proper role distribution."""
+        """Generate 80-120 team members with proper role distribution.
+
+        CRITICAL: Prevents users from being assigned to multiple teams in the same hackathon.
+        """
         team_members = []
         roles = ['hacker', 'hipster', 'hustler', 'mentor']
 
+        # Track which users are already assigned to each hackathon
+        used_users_per_hackathon = {}
+
         for team in teams:
-            # Each team gets 2-5 members
-            num_members = random.randint(2, min(5, len(users)))
-            selected_users = random.sample(users, k=num_members)
+            hackathon_id = team.hackathon.id
+
+            # Initialize tracking for this hackathon if needed
+            if hackathon_id not in used_users_per_hackathon:
+                used_users_per_hackathon[hackathon_id] = set()
+
+            # Get users not already in a team for this hackathon
+            available_users = [u for u in users if u.id not in used_users_per_hackathon[hackathon_id]]
+
+            if not available_users:
+                # No users available for this hackathon
+                continue
+
+            # Each team gets 2-5 members (limited by available users)
+            # If only 1 user available, take that user (edge case)
+            max_members = min(5, len(available_users))
+            min_members = min(2, len(available_users))
+            num_members = random.randint(min_members, max_members)
+            selected_users = random.sample(available_users, k=num_members)
 
             for idx, user in enumerate(selected_users):
                 # First member is usually the leader
@@ -369,17 +417,16 @@ class Command(BaseCommand):
                 # Prefer user's preferred role, or assign random
                 role = user.preferred_role if user.preferred_role in roles else random.choice(roles)
 
-                try:
-                    member = TeamMember.objects.create(
-                        team=team,
-                        user=user,
-                        role=role,
-                        is_leader=is_leader,
-                    )
-                    team_members.append(member)
-                except Exception:
-                    # Skip if user already in this team
-                    pass
+                member = TeamMember.objects.create(
+                    team=team,
+                    user=user,
+                    role=role,
+                    is_leader=is_leader,
+                )
+                team_members.append(member)
+
+                # Mark this user as used for this hackathon
+                used_users_per_hackathon[hackathon_id].add(user.id)
 
         return team_members
 
@@ -400,7 +447,8 @@ class Command(BaseCommand):
                 quest = random.choice(quests)
                 user = random.choice(users)
                 team = None
-                hackathon = None
+                # CRITICAL: Inherit hackathon from quest if it's hackathon-specific
+                hackathon = quest.hackathon
                 submission_url = f"https://github.com/{user.username}/quest-{quest.slug}"
             else:
                 # Hackathon submission (team)
@@ -412,8 +460,18 @@ class Command(BaseCommand):
 
             verification_status = random.choices(verification_statuses, weights=status_weights)[0]
 
-            # Score only if verified
-            score = Decimal(str(random.uniform(60, 100))) if verification_status == 'verified' else None
+            # Score only if verified, with realistic distribution
+            if verification_status == 'verified':
+                # 70% score well (70-100), 20% mediocre (40-70), 10% fail (0-40)
+                tier = random.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]
+                if tier == 1:
+                    score = Decimal(str(random.uniform(70, 100)))
+                elif tier == 2:
+                    score = Decimal(str(random.uniform(40, 70)))
+                else:
+                    score = Decimal(str(random.uniform(0, 40)))
+            else:
+                score = None
 
             submission = Submission.objects.create(
                 user=user,
