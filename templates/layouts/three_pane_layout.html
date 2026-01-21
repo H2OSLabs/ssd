@@ -2,15 +2,15 @@
 
 {% block content %}
 <div class="three-pane-layout flex min-h-screen">
-    <aside class="navigation-sidebar" x-data="{ collapsed: false }">
+    <aside class="navigation-sidebar" x-data="{ collapsed: false }" role="navigation" aria-label="Main navigation">
         {% block navigation_sidebar %}{% endblock %}
     </aside>
 
-    <main class="content-main flex-1 max-w-4xl">
+    <main class="content-main flex-1 max-w-4xl" role="main">
         {% block main_content %}{% endblock %}
     </main>
 
-    <aside class="detail-sidebar hidden lg:block">
+    <aside class="detail-sidebar hidden lg:block" role="complementary" aria-label="Details">
         {% block detail_sidebar %}{% endblock %}
     </aside>
 </div>
