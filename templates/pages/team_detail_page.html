@@ -113,6 +113,7 @@
         <nav class="sticky top-0 z-10 bg-gh-bg-default dark:bg-gray-900 border-b border-gh-border-default dark:border-gray-700 -mx-gh-6 px-gh-6 py-gh-3" role="tablist" aria-label="Team sections">
             <div class="flex gap-gh-1 overflow-x-auto no-scrollbar">
                 <button
+                    id="overview-tab"
                     @click="activeTab = 'overview'"
                     :class="activeTab === 'overview' ? 'border-gh-accent-emphasis dark:border-gh-accent-muted text-gh-neutral-emphasis dark:text-white font-semibold' : 'border-transparent text-gh-neutral-muted dark:text-gh-neutral-muted hover:text-gh-neutral-default dark:hover:text-gh-neutral-default hover:border-gh-border-default dark:hover:border-gray-600'"
                     class="px-gh-4 py-gh-2 border-b-2 transition-colors whitespace-nowrap text-sm"
@@ -122,6 +123,7 @@
                     Overview
                 </button>
                 <button
+                    id="members-tab"
                     @click="activeTab = 'members'"
                     :class="activeTab === 'members' ? 'border-gh-accent-emphasis dark:border-gh-accent-muted text-gh-neutral-emphasis dark:text-white font-semibold' : 'border-transparent text-gh-neutral-muted dark:text-gh-neutral-muted hover:text-gh-neutral-default dark:hover:text-gh-neutral-default hover:border-gh-border-default dark:hover:border-gray-600'"
                     class="px-gh-4 py-gh-2 border-b-2 transition-colors whitespace-nowrap text-sm"
@@ -131,6 +133,7 @@
                     Members
                 </button>
                 <button
+                    id="submissions-tab"
                     @click="activeTab = 'submissions'"
                     :class="activeTab === 'submissions' ? 'border-gh-accent-emphasis dark:border-gh-accent-muted text-gh-neutral-emphasis dark:text-white font-semibold' : 'border-transparent text-gh-neutral-muted dark:text-gh-neutral-muted hover:text-gh-neutral-default dark:hover:text-gh-neutral-default hover:border-gh-border-default dark:hover:border-gray-600'"
                     class="px-gh-4 py-gh-2 border-b-2 transition-colors whitespace-nowrap text-sm"
@@ -140,6 +143,7 @@
                     Submissions
                 </button>
                 <button
+                    id="activity-tab"
                     @click="activeTab = 'activity'"
                     :class="activeTab === 'activity' ? 'border-gh-accent-emphasis dark:border-gh-accent-muted text-gh-neutral-emphasis dark:text-white font-semibold' : 'border-transparent text-gh-neutral-muted dark:text-gh-neutral-muted hover:text-gh-neutral-default dark:hover:text-gh-neutral-default hover:border-gh-border-default dark:hover:border-gray-600'"
                     class="px-gh-4 py-gh-2 border-b-2 transition-colors whitespace-nowrap text-sm"
@@ -180,6 +184,7 @@
                 <h2 class="text-2xl font-bold text-gh-neutral-emphasis dark:text-white mb-gh-4">Current Hackathon</h2>
                 <div class="space-y-gh-3">
                     <h3 class="text-xl font-semibold text-gh-accent-fg dark:text-gh-accent-muted">
+                        {# TODO: Implement hackathon_detail URL pattern: {% url 'hackathon_detail' team.hackathon.slug %} #}
                         <a href="#" class="hover:underline">{{ team.hackathon.name }}</a>
                     </h3>
                     <div class="flex flex-wrap gap-gh-4 text-sm text-gh-neutral-default dark:text-gh-neutral-default">
@@ -280,6 +285,7 @@
 
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-1">
+                                    {# TODO: Implement user_profile URL pattern: {% url 'user_profile' membership.user.username %} #}
                                     <a href="#" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">
                                         {{ membership.user.get_full_name|default:membership.user.username }}
                                     </a>
@@ -383,7 +389,7 @@
                         <div class="flex flex-col items-center">
                             <div class="flex-shrink-0 w-3 h-3 rounded-full bg-gh-accent-emphasis dark:bg-gh-accent-muted"></div>
                             {% if not forloop.last %}
-                            <div class="w-0.5 flex-1 bg-gh-border-default dark:border-gray-700 mt-2"></div>
+                            <div class="w-0.5 flex-1 bg-gh-border-default dark:bg-gray-700 mt-2"></div>
                             {% endif %}
                         </div>
 
@@ -391,6 +397,7 @@
                             <div class="flex items-start justify-between gap-gh-2 mb-gh-1">
                                 <div>
                                     <p class="text-sm text-gh-neutral-default dark:text-gh-neutral-default">
+                                        {# TODO: Implement user_profile URL pattern: {% url 'user_profile' activity.user.username %} #}
                                         <a href="#" class="font-semibold hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">{{ activity.user.username }}</a>
                                         <span class="text-gh-neutral-muted dark:text-gh-neutral-muted"> {{ activity.action }}</span>
                                     </p>
@@ -500,6 +507,7 @@
     <section class="card-gh p-gh-6 bg-gh-bg-subtle dark:bg-gray-800">
         <h2 class="text-lg font-semibold text-gh-neutral-emphasis dark:text-white mb-gh-4">Quick Actions</h2>
         <div class="space-y-gh-2">
+            {# TODO: Implement share/report functionality #}
             <a href="#" class="btn-gh bg-gh-bg-default dark:bg-gray-900 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 w-full text-center text-sm">
                 Share Team
             </a>
