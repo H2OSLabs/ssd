@@ -43,11 +43,6 @@
             </span>
             {% endfor %}
         </div>
-        {% if user.skills|length > 5 %}
-        <a href="{{ user.profile_url }}#skills" class="text-xs text-gh-accent-fg dark:text-gh-accent-muted hover:underline">
-            Show all {{ user.skills|length }} skills
-        </a>
-        {% endif %}
     </div>
     {% endif %}
 
@@ -82,12 +77,10 @@
         <a href="{{ user.profile_url }}" class="btn-gh btn-gh-primary flex-1 text-center">
             View Profile
         </a>
-        {% if show_message_button %}
-        <a href="{% url 'messages:compose' user.id %}" class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 px-gh-3">
+        <button class="btn-gh bg-gh-bg-subtle dark:bg-gray-800 text-gh-neutral-emphasis dark:text-gh-neutral-default border border-gh-border-default dark:border-gray-700 hover:bg-gh-bg-muted dark:hover:bg-gray-700 px-gh-3">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-        </a>
-        {% endif %}
+        </button>
     </div>
 </article>
