@@ -1,25 +1,14 @@
 
 {% load wagtailcore_tags wagtailsettings_tags wagtailimages_tags %}
 
-<div class="flex flex-col 
-
-lg:max-w-[370px]
-w-full h-full group
-">
-    <div class="
-        rounded-md
-        overflow-hidden 
-        md:max-w-[270px]
-        lg:max-w-full
-        w-full 
-    ">
+<article class="card-gh flex flex-col lg:max-w-[370px] w-full h-full group overflow-hidden">
+    <div class="rounded-gh overflow-hidden md:max-w-[270px] lg:max-w-full w-full">
         {% if page.listing_image %}
             {% image page.listing_image format-jpeg fill-800x600 as card_image_1x_jpg %}
             {% image page.listing_image format-jpeg fill-1600x1200 as card_image_2x_jpg %}
             {% image page.listing_image format-webp fill-800x600 as card_image_1x_webp %}
             {% image page.listing_image format-webp fill-1600x1200 as card_image_2x_webp %}
         {% else %}
-            
             {% image settings.utils.SystemMessagesSettings.get_placeholder_image format-jpeg fill-800x600 as card_image_1x_jpg %}
             {% image settings.utils.SystemMessagesSettings.get_placeholder_image format-jpeg fill-1600x1200 as card_image_2x_jpg %}
             {% image settings.utils.SystemMessagesSettings.get_placeholder_image format-webp fill-800x600 as card_image_1x_webp %}
@@ -33,12 +22,7 @@ w-full h-full group
                 width="{{ card_image_1x_webp.width }}"
                 height="{{ card_image_1x_webp.height }}"
                 alt="{{ card_image_1x_webp.alt }}"
-
-                class="
-                aspect-[20/11] 
-                md:aspect-[4/3] lg:aspect-[20/11] 
-                
-                w-full h-full object-cover"
+                class="aspect-[20/11] md:aspect-[4/3] lg:aspect-[20/11] w-full h-full object-cover"
                 {% if card_image_1x_webp.focal_point %}
                 style='{{ card_image_1x_webp.object_position_style }}'
                 {% endif %}
@@ -46,23 +30,18 @@ w-full h-full group
         </picture>
     </div>
 
-    <div class="pt-7">
-        <a
-            href="{% pageurl page %}"
-            class="
-            text-xl md:text-2xl font-bold leading-8 md:leading-10
-            underline
-            underline-offset-8
-            decoration-[1.5px]
-            decoration-mackerel-200
-            hover:decoration-mackerel-300
-            "
-        >
-            {% firstof page.listing_title page.title %}
-        </a>
-        <p class="text-grey-700 dark:text-grey-200 pt-2.5 leading-6">
+    <div class="card-gh-body pt-7">
+        <h3 class="text-xl md:text-2xl font-bold leading-8 md:leading-10 mb-2">
+            <a
+                href="{% pageurl page %}"
+                class="text-gh-neutral-emphasis dark:text-white hover:text-gh-accent-fg dark:hover:text-gh-accent-muted underline underline-offset-8 decoration-[1.5px] decoration-gh-accent-subtle hover:decoration-gh-accent-muted"
+            >
+                {% firstof page.listing_title page.title %}
+            </a>
+        </h3>
+        <p class="text-gh-neutral-default dark:text-gh-neutral-default pt-2.5 leading-6">
             {% firstof page.listing_summary page.plain_introduction %}
         </p>
     </div>
-</div>
+</article>
 

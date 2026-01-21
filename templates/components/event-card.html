@@ -1,18 +1,18 @@
 {% load wagtailimages_tags %}
 
-<div class="event-card bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+<article class="event-card card-gh">
     {% if event.cover_image %}
         {% image event.cover_image fill-400x225 as cover %}
         <img src="{{ cover.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover">
     {% endif %}
 
-    <div class="p-6">
-        <h3 class="text-xl font-semibold mb-2">
-            <a href="{{ event.url }}" class="hover:text-mackerel-300">{{ event.title }}</a>
+    <div class="card-gh-body p-gh-6">
+        <h3 class="text-xl font-semibold mb-2 text-gh-neutral-emphasis dark:text-white">
+            <a href="{{ event.url }}" class="hover:text-gh-accent-fg dark:hover:text-gh-accent-muted">{{ event.title }}</a>
         </h3>
 
         <div class="flex items-center space-x-3 mb-4">
-            <span class="status-badge px-3 py-1 rounded-full text-sm font-medium bg-mackerel-100 text-mackerel-400">
+            <span class="badge-gh {% if event.status == 'in_progress' or event.status == 'registration_open' %}badge-gh-success{% elif event.status == 'completed' %}badge-gh-danger{% else %}badge-gh-warning{% endif %}">
                 {{ event.get_status_display }}
             </span>
 
@@ -21,7 +21,7 @@
             {% endif %}
         </div>
 
-        <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+        <div class="flex items-center justify-between text-sm text-gh-neutral-muted dark:text-gh-neutral-muted">
             <div class="flex items-center space-x-4">
                 <div class="flex items-center">
                     <span class="mr-1">👥</span>
@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <a href="{{ event.url }}" class="btn btn-sm btn-primary">View Details</a>
+            <a href="{{ event.url }}" class="btn-gh btn-gh-primary">View Details</a>
         </div>
     </div>
-</div>
+</article>
