@@ -5,6 +5,7 @@ class ThemeToggle {
 
     constructor(node) {
         this.toggleSwitch = node;
+        this.transitionTimeout = null; // Track timeout to prevent race conditions
         // Detect system preference if no stored theme
         this.currentTheme = localStorage.getItem('theme') ||
             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -19,6 +20,11 @@ class ThemeToggle {
     }
 
     applyTheme(theme) {
+        // Cancel any pending transition cleanup
+        if (this.transitionTimeout) {
+            clearTimeout(this.transitionTimeout);
+        }
+
         // Add transition class to prevent jarring changes
         document.documentElement.classList.add('theme-transitioning');
 
@@ -33,8 +39,9 @@ class ThemeToggle {
         }
 
         // Remove transition class after transition completes
-        setTimeout(() => {
+        this.transitionTimeout = setTimeout(() => {
             document.documentElement.classList.remove('theme-transitioning');
+            this.transitionTimeout = null;
         }, 300);
     }
 

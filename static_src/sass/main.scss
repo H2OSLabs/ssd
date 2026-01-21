@@ -52,10 +52,16 @@
         @apply font-sans3 font-normal not-italic;
         font-optical-sizing: auto;
 
-        // Smooth theme transitions
-        &.theme-transitioning,
-        &.theme-transitioning * {
+        // Smooth theme transitions - target only elements that use CSS custom properties
+        &.theme-transitioning {
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+
+            body,
+            .btn-gh,
+            .card-gh,
+            .badge-gh {
+                transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            }
         }
     }
 
