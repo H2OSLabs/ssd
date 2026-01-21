@@ -9,7 +9,7 @@
             {# Avatar - colored circle with initials #}
             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gh-accent-emphasis flex items-center justify-center text-white font-semibold text-sm">
                 {% if request.user.is_authenticated %}
-                    {{ request.user.first_name|first|default:request.user.username|first|upper }}{{ request.user.last_name|first|upper }}
+                    {{ request.user.first_name|first|default:request.user.username|first|default:"U"|upper }}{{ request.user.last_name|first|upper }}
                 {% else %}
                     U
                 {% endif %}
@@ -30,7 +30,7 @@
     {# Navigation Sections #}
     <nav class="flex-1 p-gh-3 space-y-1 overflow-y-auto">
         {# Dashboard #}
-        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'dashboard' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'dashboard' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}"{% if active_section == 'dashboard' %} aria-current="page"{% endif %}>
             {# Dashboard Icon (Heroicons: squares-2x2) #}
             <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2.5A2.25 2.25 0 0 0 4.25 9h2.5A2.25 2.25 0 0 0 9 6.75v-2.5A2.25 2.25 0 0 0 6.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 2 13.25v2.5A2.25 2.25 0 0 0 4.25 18h2.5A2.25 2.25 0 0 0 9 15.75v-2.5A2.25 2.25 0 0 0 6.75 11h-2.5Zm9-9A2.25 2.25 0 0 0 11 4.25v2.5A2.25 2.25 0 0 0 13.25 9h2.5A2.25 2.25 0 0 0 18 6.75v-2.5A2.25 2.25 0 0 0 15.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 11 13.25v2.5A2.25 2.25 0 0 0 13.25 18h2.5A2.25 2.25 0 0 0 18 15.75v-2.5A2.25 2.25 0 0 0 15.75 11h-2.5Z" clip-rule="evenodd" />
@@ -39,7 +39,7 @@
         </a>
 
         {# Hackathons #}
-        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'hackathons' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'hackathons' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}"{% if active_section == 'hackathons' %} aria-current="page"{% endif %}>
             {# Hackathons Icon (Heroicons: trophy) #}
             <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 1c-1.828 0-3.623.149-5.371.435a.75.75 0 0 0-.629.74v.387c-.827.157-1.642.345-2.445.564a.75.75 0 0 0-.552.698 5 5 0 0 0 4.503 5.152 6 6 0 0 0 2.946 1.822A6.451 6.451 0 0 1 7.768 13H7.5A1.5 1.5 0 0 0 6 14.5V17h-.75C4.56 17 4 17.56 4 18.25c0 .414.336.75.75.75h10.5a.75.75 0 0 0 .75-.75c0-.69-.56-1.25-1.25-1.25H14v-2.5a1.5 1.5 0 0 0-1.5-1.5h-.268a6.453 6.453 0 0 1-.684-2.202 6 6 0 0 0 2.946-1.822 5 5 0 0 0 4.503-5.152.75.75 0 0 0-.552-.698A31.804 31.804 0 0 0 16 2.562v-.387a.75.75 0 0 0-.629-.74A33.227 33.227 0 0 0 10 1ZM2.525 4.422C3.012 4.3 3.504 4.19 4 4.09V5c0 .74.134 1.448.38 2.103a3.503 3.503 0 0 1-1.855-2.68Zm14.95 0a3.503 3.503 0 0 1-1.854 2.68C15.866 6.449 16 5.74 16 5v-.91c.496.099.988.21 1.475.332Z" clip-rule="evenodd" />
@@ -48,7 +48,7 @@
         </a>
 
         {# Teams #}
-        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'teams' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'teams' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}"{% if active_section == 'teams' %} aria-current="page"{% endif %}>
             {# Teams Icon (Heroicons: user-group) #}
             <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z" />
@@ -57,7 +57,7 @@
         </a>
 
         {# Quests #}
-        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'quests' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-gh transition-colors {% if active_section == 'quests' %}bg-gh-accent-subtle text-gh-accent-fg font-semibold{% else %}text-gh-neutral-default hover:bg-gh-bg-subtle{% endif %}"{% if active_section == 'quests' %} aria-current="page"{% endif %}>
             {# Quests Icon (Heroicons: rocket-launch) #}
             <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M4.606 12.97a.75.75 0 0 1-.134 1.051 2.494 2.494 0 0 0-.93 2.437 2.494 2.494 0 0 0 2.437-.93.75.75 0 1 1 1.186.918 3.995 3.995 0 0 1-4.482 1.332.75.75 0 0 1-.461-.461 3.994 3.994 0 0 1 1.332-4.482.75.75 0 0 1 1.052.134Z" clip-rule="evenodd" />
@@ -71,8 +71,9 @@
     <div class="p-gh-3 border-t border-gh-border-default">
         <button
             @click="collapsed = !collapsed"
+            :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+            :aria-expanded="!collapsed"
             class="w-full flex items-center justify-center p-2 rounded-gh hover:bg-gh-bg-subtle text-gh-neutral-muted transition-colors"
-            aria-label="Toggle sidebar"
         >
             {# Collapse Icon (Heroicons: chevron-double-left / chevron-double-right) #}
             <svg x-show="!collapsed" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
