@@ -1,3 +1,20 @@
+{#
+    User Profile Page Template
+
+    Context Variables Required:
+    - profile_user: User object with attributes:
+        - username, first_name, last_name, bio
+        - avatar (optional): URL to user avatar image
+        - level, xp, xp_for_next_level: Gamification stats
+        - role: User role (hacker/hipster/hustler)
+        - reputation, quests_completed, teams_joined: User stats
+        - recent_submissions: QuerySet of recent submission objects
+        - skills: List of skill objects with 'name' and 'is_verified' attributes
+        - current_teams, past_teams: QuerySets of team objects
+        - projects: List of project objects with name, description, url, tech_stack
+        - activity_history: List of activity objects with action and date
+        - seeking_team (optional): Boolean indicating if user is seeking a team
+#}
 {% extends "layouts/three_pane_layout.html" %}
 {% load static humanize %}
 
@@ -13,9 +30,9 @@
             {# Avatar #}
             <div class="flex-shrink-0">
                 {% if profile_user.avatar %}
-                    <img src="{{ profile_user.avatar }}" alt="{{ profile_user.username }}" class="w-30 h-30 rounded-full border-4 border-white dark:border-gray-700 shadow-gh-card">
+                    <img src="{{ profile_user.avatar }}" alt="{{ profile_user.username }}" class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-700 shadow-gh-card">
                 {% else %}
-                    <div class="w-30 h-30 rounded-full bg-gh-accent-emphasis dark:bg-gh-accent-muted flex items-center justify-center text-white font-bold text-4xl border-4 border-white dark:border-gray-700 shadow-gh-card">
+                    <div class="w-32 h-32 rounded-full bg-gh-accent-emphasis dark:bg-gh-accent-muted flex items-center justify-center text-white font-bold text-4xl border-4 border-white dark:border-gray-700 shadow-gh-card">
                         {{ profile_user.first_name|first|default:profile_user.username|first|default:"U"|upper }}{{ profile_user.last_name|first|upper }}
                     </div>
                 {% endif %}
@@ -192,8 +209,7 @@
             id="teams-panel"
             role="tabpanel"
             aria-labelledby="teams-tab"
-            class="space-y-gh-6"
-            style="display: none;">
+            class="space-y-gh-6">
 
             {# Current Teams #}
             {% if profile_user.current_teams %}
@@ -233,8 +249,7 @@
             id="projects-panel"
             role="tabpanel"
             aria-labelledby="projects-tab"
-            class="space-y-gh-4"
-            style="display: none;">
+            class="space-y-gh-4">
 
             {% if profile_user.projects %}
                 {% for project in profile_user.projects %}
@@ -283,8 +298,7 @@
             id="history-panel"
             role="tabpanel"
             aria-labelledby="history-tab"
-            class="space-y-gh-4"
-            style="display: none;">
+            class="space-y-gh-4">
 
             {% if profile_user.activity_history %}
             <div class="card-gh p-gh-6">

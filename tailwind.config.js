@@ -131,5 +131,18 @@ module.exports = {
                 'gh-6': '24px',
             },
         },
-    }
+    },
+    plugins: [
+        plugin(function({ addUtilities }) {
+            addUtilities({
+                '.no-scrollbar': {
+                    '-ms-overflow-style': 'none',
+                    'scrollbar-width': 'none',
+                    '&::-webkit-scrollbar': {
+                        display: 'none'
+                    }
+                }
+            })
+        })
+    ]
 };
