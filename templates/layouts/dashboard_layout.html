@@ -3,27 +3,27 @@
 
 {% block content %}
 <div class="dashboard-layout flex min-h-screen">
-    <aside class="dashboard-sidebar w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 sticky top-0 h-screen overflow-y-auto">
+    <aside class="dashboard-sidebar w-64 bg-gh-bg-default dark:bg-gray-900 border-r border-gh-border-default dark:border-gray-700 sticky top-0 h-screen overflow-y-auto">
         {% block sidebar %}
-        <nav class="sidebar-nav p-6">
-            <ul class="space-y-2">
-                <li><a href="{% url 'home' %}" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</a></li>
-                <li><a href="{% url 'hackathons:list' %}" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">My Hackathons</a></li>
-                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">My Teams</a></li>
-                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Submissions</a></li>
-                <li><a href="#" class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a></li>
+        <nav class="sidebar-nav gh-4">
+            <ul class="gh-1">
+                <li><a href="{% url 'home' %}" class="block gh-3 gh-2 rounded text-gh-neutral-default dark:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800 hover:text-gh-accent-fg dark:hover:text-gh-accent-fg">Dashboard</a></li>
+                <li><a href="{% url 'hackathons:list' %}" class="block gh-3 gh-2 rounded text-gh-neutral-default dark:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800 hover:text-gh-accent-fg dark:hover:text-gh-accent-fg">My Hackathons</a></li>
+                <li><a href="#" class="block gh-3 gh-2 rounded text-gh-neutral-default dark:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800 hover:text-gh-accent-fg dark:hover:text-gh-accent-fg">My Teams</a></li>
+                <li><a href="#" class="block gh-3 gh-2 rounded text-gh-neutral-default dark:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800 hover:text-gh-accent-fg dark:hover:text-gh-accent-fg">Submissions</a></li>
+                <li><a href="#" class="block gh-3 gh-2 rounded text-gh-neutral-default dark:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800 hover:text-gh-accent-fg dark:hover:text-gh-accent-fg">Settings</a></li>
             </ul>
         </nav>
 
         {% if user.is_authenticated %}
-        <div class="sidebar-profile p-6 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-3">
-                <div class="profile-avatar w-10 h-10 rounded-full bg-mackerel-300 flex items-center justify-center text-white font-semibold">
+        <div class="sidebar-profile gh-4 border-t border-gh-border-default dark:border-gray-700">
+            <div class="flex items-center gh-2">
+                <div class="profile-avatar w-10 h-10 rounded-full bg-gh-accent-fg dark:bg-gh-accent-emphasis flex items-center justify-center text-white font-semibold">
                     {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
                 </div>
                 <div class="profile-info">
-                    <div class="profile-name text-sm font-medium">{{ user.get_full_name }}</div>
-                    <div class="profile-xp text-xs text-gray-500">Level {{ user.level }} • {{ user.xp_points }} XP</div>
+                    <div class="profile-name text-sm font-medium text-gh-neutral-default dark:text-gray-200">{{ user.get_full_name }}</div>
+                    <div class="profile-xp text-xs text-gh-neutral-muted dark:text-gray-400">Level {{ user.level }} • {{ user.xp_points }} XP</div>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
         {% endblock sidebar %}
     </aside>
 
-    <main class="dashboard-main flex-1 p-8 bg-gray-50 dark:bg-gray-900">
+    <main class="dashboard-main flex-1 gh-5 bg-gh-bg-muted dark:bg-gray-950">
         {% block dashboard_content %}{% endblock %}
     </main>
 </div>

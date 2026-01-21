@@ -3,7 +3,7 @@
 
 {% block content %}
 <article class="profile-layout">
-    <header class="profile-header bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white py-12">
+    <header class="profile-header bg-gradient-to-r from-gh-neutral-emphasis to-gh-accent-fg text-white dark:from-gh-neutral-emphasis dark:to-gh-accent-emphasis gh-6">
         {% block profile_header %}
         <div class="container mx-auto px-8">
             <div class="flex items-center space-x-6">
@@ -31,20 +31,20 @@
     </header>
 
     <div class="profile-tabs" x-data="{ activeTab: 'about' }">
-        <nav class="tab-navigation bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <nav class="tab-navigation sticky top-0 z-10 bg-gh-bg-default dark:bg-gray-900 border-b border-gh-border-default dark:border-gray-700">
             <div class="container mx-auto px-8">
-                <div class="flex space-x-8">
+                <div class="flex gh-3">
                     {% block tab_navigation %}
-                    <button @click="activeTab = 'about'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'about' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'about'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'about' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         About
                     </button>
-                    <button @click="activeTab = 'skills'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'skills' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'skills'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'skills' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Skills
                     </button>
-                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'projects' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'projects' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Projects
                     </button>
-                    <button @click="activeTab = 'history'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'history' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'history'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'history' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         History
                     </button>
                     {% endblock tab_navigation %}
@@ -70,13 +70,13 @@
 
             <aside class="profile-sidebar w-80 sticky top-0 h-screen overflow-y-auto">
                 {% block profile_sidebar %}
-                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
-                    <h3 class="font-semibold mb-4">Badges</h3>
+                <div class="sidebar-section bg-gh-bg-default dark:bg-gray-900 border border-gh-border-default dark:border-gray-700 gh-4 rounded-lg shadow-sm gh-3">
+                    <h3 class="font-semibold gh-2 text-gh-neutral-default dark:text-gray-200">Badges</h3>
                     {% block badges %}{% endblock %}
                 </div>
 
-                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-                    <h3 class="font-semibold mb-4">Recent Activity</h3>
+                <div class="sidebar-section bg-gh-bg-default dark:bg-gray-900 border border-gh-border-default dark:border-gray-700 gh-4 rounded-lg shadow-sm">
+                    <h3 class="font-semibold gh-2 text-gh-neutral-default dark:text-gray-200">Recent Activity</h3>
                     {% block recent_activity %}{% endblock %}
                 </div>
                 {% endblock profile_sidebar %}

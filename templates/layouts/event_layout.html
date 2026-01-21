@@ -3,7 +3,7 @@
 
 {% block content %}
 <article class="event-layout">
-    <header class="event-header relative bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white">
+    <header class="event-header relative bg-gradient-to-r from-gh-neutral-emphasis to-gh-accent-fg text-white dark:from-gh-neutral-emphasis dark:to-gh-accent-emphasis">
         {% block event_header %}
         {% if page.cover_image %}
             {% image page.cover_image fill-1200x400 as cover %}
@@ -31,22 +31,22 @@
     </header>
 
     <div class="event-tabs" x-data="{ activeTab: 'overview' }">
-        <nav class="tab-navigation bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <nav class="tab-navigation sticky top-0 z-10 bg-gh-bg-default dark:bg-gray-900 border-b border-gh-border-default dark:border-gray-700">
             <div class="container mx-auto px-8">
-                <div class="flex space-x-8">
-                    <button @click="activeTab = 'overview'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'overview' }" class="py-4 font-medium">
+                <div class="flex gh-3">
+                    <button @click="activeTab = 'overview'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'overview' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Overview
                     </button>
-                    <button @click="activeTab = 'teams'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'teams' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'teams'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'teams' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Teams
                     </button>
-                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'projects' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'projects'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'projects' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Projects
                     </button>
-                    <button @click="activeTab = 'rules'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'rules' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'rules'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'rules' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Rules
                     </button>
-                    <button @click="activeTab = 'leaderboard'" :class="{ 'border-b-2 border-mackerel-300 text-mackerel-300': activeTab === 'leaderboard' }" class="py-4 font-medium">
+                    <button @click="activeTab = 'leaderboard'" :class="{ 'border-b-2 border-gh-accent-fg text-gh-accent-fg dark:border-gh-accent-fg dark:text-gh-accent-fg': activeTab === 'leaderboard' }" class="py-4 font-medium text-gh-neutral-muted dark:text-gray-400 hover:text-gh-neutral-default dark:hover:text-gray-200 hover:bg-gh-bg-muted dark:hover:bg-gray-800">
                         Leaderboard
                     </button>
                 </div>
@@ -74,21 +74,21 @@
 
             <aside class="event-sidebar w-80 sticky top-0 h-screen overflow-y-auto">
                 {% block event_sidebar %}
-                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
-                    <h3 class="font-semibold mb-4">Event Stats</h3>
+                <div class="sidebar-section bg-gh-bg-default dark:bg-gray-900 border border-gh-border-default dark:border-gray-700 gh-4 rounded-lg shadow-sm gh-3">
+                    <h3 class="font-semibold gh-2 text-gh-neutral-default dark:text-gray-200">Event Stats</h3>
                     {% include "components/stats-panel.html" %}
                 </div>
 
                 {% if page.get_current_phase %}
-                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
-                    <h3 class="font-semibold mb-4">Current Phase</h3>
+                <div class="sidebar-section bg-gh-bg-default dark:bg-gray-900 border border-gh-border-default dark:border-gray-700 gh-4 rounded-lg shadow-sm gh-3">
+                    <h3 class="font-semibold gh-2 text-gh-neutral-default dark:text-gray-200">Current Phase</h3>
                     {% include "components/phase-indicator.html" with phase=page.get_current_phase %}
                 </div>
                 {% endif %}
 
                 {% if user.is_authenticated %}
-                <div class="sidebar-section bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-                    <h3 class="font-semibold mb-4">Looking for teammates?</h3>
+                <div class="sidebar-section bg-gh-bg-default dark:bg-gray-900 border border-gh-border-default dark:border-gray-700 gh-4 rounded-lg shadow-sm">
+                    <h3 class="font-semibold gh-2 text-gh-neutral-default dark:text-gray-200">Looking for teammates?</h3>
                     {% include "components/team-formation-widget.html" %}
                 </div>
                 {% endif %}
