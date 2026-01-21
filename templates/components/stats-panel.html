@@ -1,25 +1,25 @@
-<div class="stats-panel space-y-3">
-    <div class="stat-item flex items-center">
-        <span class="text-2xl mr-3">👥</span>
+<div class="stats-panel space-y-gh-3">
+    <div class="stat-item flex items-center p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 transition-colors">
+        <span class="text-2xl mr-gh-3">👥</span>
         <div>
-            <div class="text-2xl font-bold">{{ stats.teams_count|default:"0" }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Teams</div>
+            <div class="text-2xl font-bold text-gh-neutral-default dark:text-gray-100">{{ stats.teams_count|default:"0" }}</div>
+            <div class="text-sm text-gh-neutral-muted dark:text-gray-400">Teams</div>
         </div>
     </div>
 
-    <div class="stat-item flex items-center">
-        <span class="text-2xl mr-3">👤</span>
+    <div class="stat-item flex items-center p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 transition-colors">
+        <span class="text-2xl mr-gh-3">👤</span>
         <div>
-            <div class="text-2xl font-bold">{{ stats.participants_count|default:"0" }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Participants</div>
+            <div class="text-2xl font-bold text-gh-neutral-default dark:text-gray-100">{{ stats.participants_count|default:"0" }}</div>
+            <div class="text-sm text-gh-neutral-muted dark:text-gray-400">Participants</div>
         </div>
     </div>
 
-    <div class="stat-item flex items-center">
-        <span class="text-2xl mr-3">📦</span>
+    <div class="stat-item flex items-center p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 transition-colors">
+        <span class="text-2xl mr-gh-3">📦</span>
         <div>
-            <div class="text-2xl font-bold">{{ stats.submissions_count|default:"0" }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">Submissions</div>
+            <div class="text-2xl font-bold text-gh-neutral-default dark:text-gray-100">{{ stats.submissions_count|default:"0" }}</div>
+            <div class="text-sm text-gh-neutral-muted dark:text-gray-400">Submissions</div>
         </div>
     </div>
 </div>

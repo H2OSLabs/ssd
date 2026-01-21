@@ -1,10 +1,10 @@
-<div class="phase-timeline space-y-4">
+<div class="phase-timeline space-y-gh-3">
     {% for phase in phases %}
-    <div class="phase-item flex {% if phase.is_active %}border-l-4 border-mackerel-300 pl-4{% else %}pl-5{% endif %}">
+    <div class="phase-item flex {% if phase.is_active %}border-l-4 border-gh-accent-fg dark:border-gh-accent-muted pl-gh-3{% else %}pl-gh-4{% endif %} p-gh-3 bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh hover:bg-gh-bg-muted dark:hover:bg-gray-750 transition-colors">
         <div class="flex-1">
-            <h4 class="font-semibold {% if phase.is_active %}text-mackerel-400{% endif %}">{{ phase.title }}</h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ phase.description }}</p>
-            <p class="text-xs text-gray-500 mt-2">
+            <h4 class="font-semibold {% if phase.is_active %}text-gh-accent-fg dark:text-gh-accent-muted{% else %}text-gh-neutral-default dark:text-gray-200{% endif %}">{{ phase.title }}</h4>
+            <p class="text-sm text-gh-neutral-muted dark:text-gray-400 mt-gh-1">{{ phase.description }}</p>
+            <p class="text-xs text-gh-neutral-subtle dark:text-gray-500 mt-gh-2">
                 {{ phase.start_date|date:"M d" }} - {{ phase.end_date|date:"M d, Y" }}
             </p>
         </div>

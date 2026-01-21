@@ -1,19 +1,19 @@
-<div class="countdown-timer inline-flex items-center space-x-2 text-sm"
+<div class="countdown-timer inline-flex items-center gap-gh-2 text-sm bg-gh-bg-subtle dark:bg-gray-800 border border-gh-border-default dark:border-gray-700 rounded-gh px-gh-3 py-gh-2"
      x-data="countdown('{{ end_date|date:'c' }}')"
      x-init="start()">
     <div class="countdown-segment">
-        <span class="font-mono font-bold" x-text="days">0</span>
-        <span class="text-xs">d</span>
+        <span class="font-mono font-bold text-gh-accent-fg dark:text-gh-accent-muted" x-text="days">0</span>
+        <span class="text-xs text-gh-neutral-muted dark:text-gray-400">d</span>
     </div>
-    <span>:</span>
+    <span class="text-gh-neutral-subtle dark:text-gray-500">:</span>
     <div class="countdown-segment">
-        <span class="font-mono font-bold" x-text="hours">0</span>
-        <span class="text-xs">h</span>
+        <span class="font-mono font-bold text-gh-accent-fg dark:text-gh-accent-muted" x-text="hours">0</span>
+        <span class="text-xs text-gh-neutral-muted dark:text-gray-400">h</span>
     </div>
-    <span>:</span>
+    <span class="text-gh-neutral-subtle dark:text-gray-500">:</span>
     <div class="countdown-segment">
-        <span class="font-mono font-bold" x-text="minutes">0</span>
-        <span class="text-xs">m</span>
+        <span class="font-mono font-bold text-gh-accent-fg dark:text-gh-accent-muted" x-text="minutes">0</span>
+        <span class="text-xs text-gh-neutral-muted dark:text-gray-400">m</span>
     </div>
 </div>
 
