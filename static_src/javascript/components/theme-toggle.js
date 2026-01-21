@@ -2,34 +2,47 @@ class ThemeToggle {
     static selector() {
         return '[data-theme-toggle]';
     }
-    
+
     constructor(node) {
         this.toggleSwitch = node;
-        this.currentTheme = localStorage.getItem('theme');
+        // Detect system preference if no stored theme
+        this.currentTheme = localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
-        if (this.currentTheme) {
-            document.documentElement.classList.add('theme', this.currentTheme);
-            if (this.currentTheme === 'dark') {
-                this.toggleSwitch.checked = true;
-            }
-        }
-        this.bindEvents()
+        this.applyTheme(this.currentTheme);
+        this.bindEvents();
     }
 
     bindEvents() {
-        this.toggleSwitch.addEventListener('change', this.switchTheme, false);
+        // Bind switchTheme to this instance
+        this.toggleSwitch.addEventListener('change', (e) => this.switchTheme(e), false);
+    }
+
+    applyTheme(theme) {
+        // Add transition class to prevent jarring changes
+        document.documentElement.classList.add('theme-transitioning');
+
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            this.toggleSwitch.checked = true;
+        } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+            this.toggleSwitch.checked = false;
+        }
+
+        // Remove transition class after transition completes
+        setTimeout(() => {
+            document.documentElement.classList.remove('theme-transitioning');
+        }, 300);
     }
 
     switchTheme(e) {
-        if (e.target.checked) {
-            document.documentElement.classList.add('theme', 'dark');
-            document.documentElement.classList.remove('theme', 'light');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.add('theme', 'light');
-            document.documentElement.classList.remove('theme', 'dark');
-            localStorage.setItem('theme', 'light');
-        }
+        const theme = e.target.checked ? 'dark' : 'light';
+        this.currentTheme = theme;
+        localStorage.setItem('theme', theme);
+        this.applyTheme(theme);
     }
 }
 

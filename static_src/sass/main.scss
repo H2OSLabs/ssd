@@ -51,6 +51,12 @@
     html {
         @apply font-sans3 font-normal not-italic;
         font-optical-sizing: auto;
+
+        // Smooth theme transitions
+        &.theme-transitioning,
+        &.theme-transitioning * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
     }
 
     body {
