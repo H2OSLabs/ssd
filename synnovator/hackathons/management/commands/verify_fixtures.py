@@ -78,33 +78,37 @@ class Command(BaseCommand):
             return 0
 
     def check_quest_hackathon_links(self):
-        """Check that quest submissions inherit hackathon from quest."""
+        """Check that quest submissions are properly structured (no hackathon required)."""
         self.stdout.write('\n' + '=' * 60)
-        self.stdout.write('CHECK 2: Quest submission hackathon links')
+        self.stdout.write('CHECK 2: Quest submission structure')
         self.stdout.write('=' * 60)
 
         quest_submissions = Submission.objects.filter(quest__isnull=False)
         total_quest_submissions = quest_submissions.count()
-        hackathon_specific_quests = quest_submissions.filter(quest__hackathon__isnull=False)
-        missing_hackathon_link = hackathon_specific_quests.filter(hackathon__isnull=True).count()
+        # Quest submissions should have user, not team, and no hackathon required
+        invalid_quest_submissions = quest_submissions.filter(
+            user__isnull=True
+        ) | quest_submissions.filter(
+            team__isnull=False
+        )
 
         self.stdout.write(f'Total quest submissions: {total_quest_submissions}')
-        self.stdout.write(f'Hackathon-specific quest submissions: {hackathon_specific_quests.count()}')
+        self.stdout.write(f'Invalid quest submissions (missing user or has team): {invalid_quest_submissions.count()}')
 
-        if missing_hackathon_link > 0:
+        if invalid_quest_submissions.exists():
             self.stdout.write(self.style.ERROR(
-                f'❌ FAIL: {missing_hackathon_link} quest submissions missing hackathon link'
+                f'❌ FAIL: {invalid_quest_submissions.count()} quest submissions have invalid structure'
             ))
-            examples = hackathon_specific_quests.filter(hackathon__isnull=True)[:3]
+            examples = invalid_quest_submissions[:3]
             for sub in examples:
                 self.stdout.write(
                     f'  - Submission {sub.id} for quest "{sub.quest.title}" '
-                    f'(quest.hackathon={sub.quest.hackathon.id})'
+                    f'(user={sub.user_id}, team={sub.team_id})'
                 )
             return 1
         else:
             self.stdout.write(self.style.SUCCESS(
-                '✅ PASS: All hackathon-specific quest submissions properly linked'
+                '✅ PASS: All quest submissions have valid structure (user + quest, no hackathon)'
             ))
             return 0
 

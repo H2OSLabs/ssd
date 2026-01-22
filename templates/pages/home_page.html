@@ -1,8 +1,7 @@
-
 {% extends "base_page.html" %}
-{% load wagtailcore_tags wagtailimages_tags static %}
+{% load wagtailcore_tags wagtailimages_tags static i18n %}
 
-{% block content %}
+{% block main_content %}
     {# Hero Section #}
     <div class="bg-gradient-to-r from-mackerel-400 to-mackerel-300 text-white py-20">
         <div class="site-container px-10 md:px-20">
@@ -12,55 +11,90 @@
             <div class="max-w-[636px] text-xl mb-8 opacity-90">
                 {{ page.introduction|richtext }}
             </div>
-            <div class="flex flex-wrap gap-4">
-                <a href="{% url 'hackathons:list' %}" class="btn btn-lg bg-white text-mackerel-400 hover:bg-gray-100">
-                    Browse Hackathons
-                </a>
-                <a href="#" class="btn btn-lg bg-mackerel-500 text-white hover:bg-mackerel-600">
-                    Explore Dojo
-                </a>
-                <a href="#" class="btn btn-lg bg-mackerel-500 text-white hover:bg-mackerel-600">
-                    Find Your Team
-                </a>
-            </div>
         </div>
     </div>
 
-    {# Stats Bar #}
+    {# Stats Bar - Now configurable and dynamic #}
+    {% if stats %}
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-8">
         <div class="site-container px-10 md:px-20">
             <div class="grid grid-cols-3 gap-8 text-center">
                 <div>
-                    <div class="text-3xl font-bold text-mackerel-400">12</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">Active Hackathons</div>
+                    <div class="text-3xl font-bold text-mackerel-400">{{ stats.active_hackathons }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">{% trans "Active Hackathons" %}</div>
                 </div>
                 <div>
-                    <div class="text-3xl font-bold text-mackerel-400">347</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">Teams Formed</div>
+                    <div class="text-3xl font-bold text-mackerel-400">{{ stats.teams_formed }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">{% trans "Teams Formed" %}</div>
                 </div>
                 <div>
-                    <div class="text-3xl font-bold text-mackerel-400">8,429</div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">Quests Completed</div>
+                    <div class="text-3xl font-bold text-mackerel-400">{{ stats.quests_completed }}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">{% trans "Quests Completed" %}</div>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 
-    {# Featured Hackathons #}
+    {# News Section - Configurable from Admin #}
+    {% if news_articles %}
+    <div class="py-16 bg-white dark:bg-gray-800">
+        <div class="site-container px-10 md:px-20">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">{{ news_section_title }}</h2>
+                {% if news_section_url %}
+                <a href="{{ news_section_url }}" class="text-mackerel-400 hover:text-mackerel-500 font-medium">
+                    {% trans "View All" %} →
+                </a>
+                {% endif %}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for article in news_articles %}
+                    {% include "components/card--article.html" with article=article %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Hackathons Section - Configurable from Admin #}
+    {% if hackathons %}
     <div class="py-16 bg-gray-50 dark:bg-gray-900">
         <div class="site-container px-10 md:px-20">
-            <h2 class="text-3xl font-bold mb-8">{{ page.featured_section_title|default:"Featured Hackathons" }}</h2>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">{{ hackathons_section_title }}</h2>
+                {% if hackathons_section_url %}
+                <a href="{{ hackathons_section_url }}" class="text-mackerel-400 hover:text-mackerel-500 font-medium">
+                    {% trans "View All" %} →
+                </a>
+                {% endif %}
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for related_page in page.page_related_pages.all|slice:":3" %}
-                    {% with event=related_page.page.specific %}
-                    {% include "components/event-card.html" with event=event %}
+                {% for hackathon in hackathons %}
+                    {% include "components/event-card.html" with event=hackathon %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Featured Section - Uses related pages #}
+    {% if page.featured_section_title and page.page_related_pages.exists %}
+    <div class="py-16 bg-white dark:bg-gray-800">
+        <div class="site-container px-10 md:px-20">
+            <h2 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">{{ page.featured_section_title }}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for related_page in page.page_related_pages.all|slice:":6" %}
+                    {% with item=related_page.page.specific %}
+                    {% include "components/card.html" with title=item.title url=item.url description=item.search_description %}
                     {% endwith %}
                 {% endfor %}
             </div>
         </div>
     </div>
+    {% endif %}
 
-    {# Body Content #}
+    {# Body Content - StreamField for additional flexible content #}
     {% if page.body %}
     <div class="py-16">
         <div class="site-container px-10 md:px-20">
@@ -69,5 +103,4 @@
     </div>
     {% endif %}
 
-{% endblock %}
-
+{% endblock main_content %}

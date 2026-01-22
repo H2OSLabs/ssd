@@ -13,7 +13,7 @@ from synnovator.utils.blocks import CaptionedImageBlock, StoryBlock, FeaturedArt
 
 class ArticlePage(BasePage):
     template = "pages/article_page.html"
-    parent_page_types = ["news.NewsListingPage"]
+    parent_page_types = ["news.NewsIndexPage"]
 
     author = models.ForeignKey(
         "utils.AuthorSnippet",
@@ -77,7 +77,7 @@ class ArticlePage(BasePage):
             return self.first_published_at.strftime("%d %b %Y")
 
 
-class NewsListingPage(BasePage):
+class NewsIndexPage(BasePage):
     template = "pages/news_listing_page.html"
     subpage_types = ["news.ArticlePage"]
     max_count = 1  # Allow only one news listing page to keep article pages in one place

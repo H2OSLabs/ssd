@@ -1,0 +1,209 @@
+{% extends "base_page.html" %}
+{% load wagtailcore_tags i18n %}
+
+{% block main_content %}
+<div class="site-container">
+    {# Page title from Wagtail Page model #}
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">{{ page.title }}</h1>
+
+    {# Optional intro text #}
+    {% if page.intro %}
+        <div class="prose dark:prose-invert max-w-none mb-8">
+            {{ page.intro|richtext }}
+        </div>
+    {% endif %}
+
+    {# Filters #}
+    {% if available_filters %}
+    <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <form method="get" class="flex flex-wrap gap-4 items-end">
+            {# Hackathon filter #}
+            {% if available_filters.hackathons %}
+            <div class="flex-1 min-w-48">
+                <label for="hackathon" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "Hackathon" %}
+                </label>
+                <select name="hackathon" id="hackathon"
+                        class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                    <option value="">{% trans "All Hackathons" %}</option>
+                    {% for h in available_filters.hackathons %}
+                    <option value="{{ h.id }}" {% if applied_filters.hackathon == h.id|stringformat:"s" %}selected{% endif %}>
+                        {{ h.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {# Status filter #}
+            {% if available_filters.statuses %}
+            <div class="flex-1 min-w-48">
+                <label for="status" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "Status" %}
+                </label>
+                <select name="status" id="status"
+                        class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                    <option value="">{% trans "All Statuses" %}</option>
+                    {% for value, label in available_filters.statuses %}
+                    <option value="{{ value }}" {% if applied_filters.status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {# Team filter #}
+            {% if available_filters.teams %}
+            <div class="flex-1 min-w-48">
+                <label for="team" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "Team" %}
+                </label>
+                <select name="team" id="team"
+                        class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                    <option value="">{% trans "All Teams" %}</option>
+                    {% for t in available_filters.teams %}
+                    <option value="{{ t.id }}" {% if applied_filters.team == t.id|stringformat:"s" %}selected{% endif %}>
+                        {{ t.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {# Submitter filter #}
+            {% if available_filters.submitters %}
+            <div class="flex-1 min-w-48">
+                <label for="submitter" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "Submitter" %}
+                </label>
+                <select name="submitter" id="submitter"
+                        class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                    <option value="">{% trans "All Submitters" %}</option>
+                    {% for u in available_filters.submitters %}
+                    <option value="{{ u.id }}" {% if applied_filters.submitter == u.id|stringformat:"s" %}selected{% endif %}>
+                        {{ u.get_full_name|default:u.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {# Date range filters #}
+            {% if available_filters.date_filter %}
+            <div class="flex-1 min-w-48">
+                <label for="from" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "From Date" %}
+                </label>
+                <input type="date" name="from" id="from" value="{{ applied_filters.from|default:'' }}"
+                       class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            <div class="flex-1 min-w-48">
+                <label for="to" class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                    {% trans "To Date" %}
+                </label>
+                <input type="date" name="to" id="to" value="{{ applied_filters.to|default:'' }}"
+                       class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+            </div>
+            {% endif %}
+
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    {% trans "Filter" %}
+                </button>
+                {% if applied_filters %}
+                <a href="{{ page.url }}"
+                   class="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    {% trans "Clear" %}
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {# Submissions grid #}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for submission in submissions %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="p-5">
+                <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    <a href="{{ submission.url }}" class="hover:text-primary-600">
+                        {{ submission.title }}
+                    </a>
+                </h3>
+
+                {% if submission.tagline %}
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                    {{ submission.tagline|truncatewords:20 }}
+                </p>
+                {% endif %}
+
+                <div class="flex flex-wrap gap-2 mb-3">
+                    {# Status badge #}
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full
+                        {% if submission.verification_status == 'verified' %}
+                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        {% elif submission.verification_status == 'submitted' %}
+                        bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                        {% elif submission.verification_status == 'rejected' %}
+                        bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                        {% elif submission.verification_status == 'under_review' %}
+                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        {% else %}
+                        bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                        {% endif %}">
+                        {{ submission.get_verification_status_display }}
+                    </span>
+
+                    {# Score badge (if verified) #}
+                    {% if submission.score %}
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                        {% trans "Score" %}: {{ submission.score }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    {# Submitter info #}
+                    <p class="mb-1">
+                        <span class="font-medium">{% trans "By" %}:</span>
+                        {{ submission.get_submitter_display }}
+                    </p>
+
+                    {# Associated hackathons #}
+                    {% with hackathons=submission.hackathons.all %}
+                    {% if hackathons %}
+                    <p class="mb-1">
+                        <span class="font-medium">{% trans "Hackathon" %}:</span>
+                        {% for h in hackathons %}
+                        <a href="{{ h.url }}" class="hover:text-primary-600">{{ h.title }}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% endwith %}
+
+                    {# Date #}
+                    {% if submission.first_published_at %}
+                    <p>
+                        <span class="font-medium">{% trans "Submitted" %}:</span>
+                        {{ submission.first_published_at|date:"M d, Y" }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
+            {% trans "No submissions found." %}
+        </p>
+        {% endfor %}
+    </div>
+
+    {# Pagination #}
+    {% if is_paginated %}
+        {% include "components/pagination.html" with page=paginator_page %}
+    {% endif %}
+</div>
+{% endblock %}

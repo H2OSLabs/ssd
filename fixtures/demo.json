@@ -631,7 +631,7 @@
     }
   },
   {
-    "model": "news.newslistingpage",
+    "model": "news.newsindexpage",
     "pk": 4,
     "fields": {
       "social_image": null,
@@ -1597,7 +1597,7 @@
       "slug": "blog",
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "url_path": "/home/blog/",
       "owner": [
@@ -2655,7 +2655,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "base_content_type": [
         "wagtailcore",
@@ -10022,7 +10022,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "base_content_type": [
         "wagtailcore",
@@ -10987,7 +10987,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "label": "Blog",
       "action": "wagtail.create",
@@ -11009,7 +11009,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "label": "Blog",
       "action": "wagtail.edit",
@@ -11031,7 +11031,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "label": "Blog",
       "action": "wagtail.publish",
@@ -13557,7 +13557,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "label": "Blog",
       "action": "wagtail.edit",
@@ -13579,7 +13579,7 @@
     "fields": {
       "content_type": [
         "news",
-        "newslistingpage"
+        "newsindexpage"
       ],
       "label": "Blog",
       "action": "wagtail.publish",

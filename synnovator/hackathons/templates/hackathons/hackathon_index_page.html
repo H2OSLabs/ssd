@@ -1,22 +1,22 @@
-{% extends "base.html" %}
-{% load wagtailcore_tags %}
+{% extends "base_page.html" %}
+{% load wagtailcore_tags i18n %}
 
-{% block content %}
-<div class="site-container px-10 md:px-20 py-16">
+{% block main_content %}
+<div class="site-container">
     {# Page title from Wagtail Page model #}
-    <h1 class="text-4xl font-bold mb-8">{{ page.title }}</h1>
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">{{ page.title }}</h1>
 
     {# Optional intro text #}
-    {% if page.intro %}
-        <div class="prose max-w-none mb-12">
-            {{ page.intro|richtext }}
+    {% if page.introduction %}
+        <div class="prose dark:prose-invert max-w-none mb-8">
+            {{ page.introduction|richtext }}
         </div>
     {% endif %}
 
     {# Featured hackathon (if set) #}
     {% if featured %}
-        <div class="mb-12">
-            <h2 class="text-2xl font-bold mb-4">Featured Hackathon</h2>
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">{% trans "Featured Hackathon" %}</h2>
             <div class="featured-event">
                 {% include "components/event-card.html" with event=featured %}
             </div>
@@ -24,13 +24,18 @@
     {% endif %}
 
     {# All hackathons grid #}
-    <h2 class="text-2xl font-bold mb-6">{% if featured %}All Hackathons{% else %}Hackathons{% endif %}</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">{% if featured %}{% trans "All Hackathons" %}{% else %}{% trans "Hackathons" %}{% endif %}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {% for hackathon in hackathons %}
             {% include "components/event-card.html" with event=hackathon %}
         {% empty %}
-            <p class="col-span-full text-center text-gray-500 py-8">No hackathons available yet.</p>
+            <p class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">{% trans "No hackathons available yet." %}</p>
         {% endfor %}
     </div>
+
+    {# Pagination #}
+    {% if is_paginated %}
+        {% include "components/pagination.html" with page=paginator_page %}
+    {% endif %}
 </div>
 {% endblock %}

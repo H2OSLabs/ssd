@@ -1,0 +1,50 @@
+{# Left Sidebar Navigation Component #}
+{# Usage: Include within a layout with x-data="{ sidebarCollapsed: false }" #}
+{% load static wagtailsettings_tags wagtailcore_tags i18n %}
+
+<div class="flex flex-col h-full">
+    {# Navigation Items from Admin Settings #}
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto" aria-label="{% trans 'Main navigation' %}">
+        {% for link in settings.navigation.NavigationSettings.primary_navigation %}
+            {% if link.value.page %}
+                <a
+                    href="{{ link.value.get_url }}"
+                    class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    :class="sidebarCollapsed ? 'justify-center' : ''"
+                >
+                    {% with icon=link.value.get_icon %}
+                        {% if icon %}
+                            {% include "navigation/icons/"|add:icon|add:".html" %}
+                        {% else %}
+                            {# Default Icon when no icon is set #}
+                            <svg class="w-5 h-5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75Zm0 10.5a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1-.75-.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Z" clip-rule="evenodd" />
+                            </svg>
+                        {% endif %}
+                    {% endwith %}
+                    <span class="text-sm transition-opacity" x-show="!sidebarCollapsed" x-cloak>{{ link.value.get_title }}</span>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </nav>
+
+    {# Collapse Toggle Button #}
+    <div class="p-3 border-t border-gray-200 dark:border-gray-700">
+        <button
+            @click="sidebarCollapsed = !sidebarCollapsed"
+            :aria-label="sidebarCollapsed ? '{% trans "Expand sidebar" %}' : '{% trans "Collapse sidebar" %}'"
+            :aria-expanded="!sidebarCollapsed"
+            class="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"
+        >
+            {# Collapse Icon #}
+            <svg x-show="!sidebarCollapsed" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M15.79 14.77a.75.75 0 0 1-1.06.02l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 1 1 1.04 1.08L11.832 10l3.938 3.71a.75.75 0 0 1 .02 1.06Zm-6 0a.75.75 0 0 1-1.06.02l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 1 1 1.04 1.08L5.832 10l3.938 3.71a.75.75 0 0 1 .02 1.06Z" clip-rule="evenodd" />
+            </svg>
+            {# Expand Icon #}
+            <svg x-show="sidebarCollapsed" x-cloak class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.21 14.77a.75.75 0 0 1 .02-1.06L14.168 10 10.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M4.21 14.77a.75.75 0 0 1 .02-1.06L8.168 10 4.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+</div>

@@ -265,7 +265,7 @@ class Command(BaseCommand):
                 benefits=random.sample(benefits, k=random.randint(1, len(benefits))),
             )
 
-    def generate_quests(self, hackathons):
+    def generate_quests(self, hackathons=None):
         """Generate 25-35 quests across different difficulties and types."""
         quests = []
         num_quests = random.randint(25, 35)
@@ -312,8 +312,9 @@ class Command(BaseCommand):
             xp_map = {'beginner': 50, 'intermediate': 100, 'advanced': 200, 'expert': 350}
             time_map = {'beginner': 30, 'intermediate': 60, 'advanced': 120, 'expert': 240}
 
-            # 30% chance to be hackathon-specific
-            hackathon = random.choice(hackathons) if random.random() < 0.3 else None
+            # Quest is now a snippet, not hackathon-specific
+            # Quests are associated with phases via ManyToMany
+            hackathon = None
 
             tags = random.sample(skill_tags[quest_type], k=random.randint(2, 4))
 
@@ -325,7 +326,6 @@ class Command(BaseCommand):
                 difficulty=difficulty,
                 xp_reward=xp_map[difficulty],
                 estimated_time_minutes=time_map[difficulty],
-                hackathon=hackathon,
                 is_active=random.choice([True, True, True, False]),  # 75% active
                 tags=tags,
             )
@@ -447,8 +447,8 @@ class Command(BaseCommand):
                 quest = random.choice(quests)
                 user = random.choice(users)
                 team = None
-                # CRITICAL: Inherit hackathon from quest if it's hackathon-specific
-                hackathon = quest.hackathon
+                # Quest submissions don't need hackathon (quests are associated via phases)
+                hackathon = None
                 submission_url = f"https://github.com/{user.username}/quest-{quest.slug}"
             else:
                 # Hackathon submission (team)

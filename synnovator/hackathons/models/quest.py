@@ -1,11 +1,16 @@
 from django.db import models
 from wagtail.fields import RichTextField
+from wagtail.snippets.models import register_snippet
+from wagtail.admin.panels import FieldPanel
+from wagtail_localize.models import TranslatableMixin
 
 
-class Quest(models.Model):
+@register_snippet
+class Quest(TranslatableMixin, models.Model):
     """
-    Represents a Dojo challenge that can be standalone or hackathon-specific.
-    Quests award XP and serve as skill verification.
+    Represents a challenge quest that is part of a Hackathon.
+    Quests are assigned to Phases and must be completed to advance.
+    Quests can be reused across multiple Hackathons.
     """
 
     title = models.CharField(
@@ -15,8 +20,7 @@ class Quest(models.Model):
 
     slug = models.SlugField(
         max_length=200,
-        unique=True,
-        help_text="URL-friendly identifier"
+        help_text="URL-friendly identifier (not required to be globally unique)"
     )
 
     description = RichTextField(
@@ -57,16 +61,6 @@ class Quest(models.Model):
         help_text="Estimated completion time"
     )
 
-    # Association
-    hackathon = models.ForeignKey(
-        'HackathonPage',
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name='quests',
-        help_text="If set, quest is specific to this hackathon"
-    )
-
     # Status
     is_active = models.BooleanField(
         default=True,
@@ -83,10 +77,23 @@ class Quest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    panels = [
+        FieldPanel('title'),
+        FieldPanel('slug'),
+        FieldPanel('description'),
+        FieldPanel('quest_type'),
+        FieldPanel('difficulty'),
+        FieldPanel('xp_reward'),
+        FieldPanel('estimated_time_minutes'),
+        FieldPanel('is_active'),
+        FieldPanel('tags'),
+    ]
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = "Quest"
         verbose_name_plural = "Quests"
+        unique_together = [("translation_key", "locale")]
 
     def __str__(self):
         return f"{self.title} ({self.get_difficulty_display()})"
@@ -96,5 +103,5 @@ class Quest(models.Model):
         total_attempts = self.submissions.count()
         if total_attempts == 0:
             return 0
-        completed = self.submissions.filter(verification_status='passed').count()
+        completed = self.submissions.filter(verification_status='verified').count()
         return (completed / total_attempts) * 100

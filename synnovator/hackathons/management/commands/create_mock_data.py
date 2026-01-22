@@ -10,9 +10,12 @@ from datetime import timedelta
 from synnovator.hackathons.models import (
     HackathonPage, Phase, Prize, Team, TeamMember, Quest, Submission,
     CompetitionRule, RuleViolation, AdvancementLog,
-    JudgeScore, ScoreBreakdown, HackathonRegistration
+    JudgeScore, ScoreBreakdown, HackathonRegistration, TeamRegistration
 )
-from synnovator.community.models import CommunityPost, Comment, Like, UserFollow, Report
+from synnovator.community.models import (
+    CommunityPost, Comment, Like, UserFollow, Report,
+    TeamProfilePage, TeamMembership, TeamIndexPage
+)
 from synnovator.notifications.models import Notification
 from synnovator.assets.models import UserAsset, AssetTransaction
 from synnovator.home.models import HomePage
@@ -192,6 +195,43 @@ class Command(BaseCommand):
                                 'is_leader': j == 0,
                             }
                         )
+
+        # Add admin to Team 0 as a leader (hacker role)
+        if teams:
+            TeamMember.objects.get_or_create(
+                team=teams[0],
+                user=admin,
+                defaults={
+                    'role': 'hacker',
+                    'is_leader': True,
+                }
+            )
+            self.stdout.write(self.style.SUCCESS(f'Added admin to Team 0'))
+
+        # Create a team seeking members (admin NOT in this team) for testing join functionality
+        seeking_team, created = Team.objects.get_or_create(
+            hackathon=hackathon,
+            slug='seeking-teammates',
+            defaults={
+                'name': 'AI Pioneers (Looking for Members!)',
+                'tagline': 'Building next-gen AI solutions - join us!',
+                'status': 'forming',
+                'is_seeking_members': True,
+                'current_round': 1,
+            }
+        )
+        if created and len(users) > 9:
+            # Add user9 as leader (not admin)
+            TeamMember.objects.get_or_create(
+                team=seeking_team,
+                user=users[9],
+                defaults={
+                    'role': 'hustler',
+                    'is_leader': True,
+                }
+            )
+            self.stdout.write(self.style.SUCCESS(f'Created team seeking members: {seeking_team.name}'))
+
         self.stdout.write(self.style.SUCCESS(f'Created {len(teams)} teams with members'))
 
         # Create quests
@@ -207,7 +247,6 @@ class Command(BaseCommand):
                     'difficulty': ['beginner', 'intermediate', 'advanced', 'advanced', 'expert'][i],
                     'xp_reward': (i + 1) * 50,
                     'estimated_time_minutes': (i + 1) * 60,
-                    'hackathon': hackathon if i < 3 else None,
                     'is_active': True,
                     'tags': ['python', 'ml', 'api'][0:i%3+1],
                 }
@@ -286,7 +325,85 @@ class Command(BaseCommand):
                     'team': teams[i // 3] if i < 9 else None,
                 }
             )
-        self.stdout.write(self.style.SUCCESS('Created registrations'))
+
+        # Create registration for admin user
+        HackathonRegistration.objects.get_or_create(
+            hackathon=hackathon,
+            user=admin,
+            defaults={
+                'status': 'approved',
+                'preferred_role': 'hacker',
+                'is_seeking_team': False,
+                'motivation': 'Admin user participating in the hackathon',
+                'skills': ['Python', 'Django', 'Wagtail', 'Leadership'],
+                'team': teams[0] if teams else None,
+            }
+        )
+        self.stdout.write(self.style.SUCCESS('Created registrations (including admin)'))
+
+        # Create TeamIndexPage and TeamProfilePages for community teams
+        self.stdout.write('Creating community teams...')
+        team_index = TeamIndexPage.objects.live().first()
+        if not team_index:
+            team_index = TeamIndexPage(
+                title='Teams',
+                slug='teams',
+            )
+            home_page.add_child(instance=team_index)
+            team_index.save_revision().publish()
+            self.stdout.write(self.style.SUCCESS('Created TeamIndexPage'))
+
+        # Create admin's team (for hackathon registration)
+        admin_team = TeamProfilePage.objects.filter(slug='admin-team').first()
+        if not admin_team:
+            admin_team = TeamProfilePage(
+                title='Admin Team',
+                slug='admin-team',
+                tagline='The admin team for testing',
+                is_open_for_members=False,
+                max_members=5,
+            )
+            team_index.add_child(instance=admin_team)
+            admin_team.save_revision().publish()
+            TeamMembership.objects.create(
+                team=admin_team,
+                user=admin,
+                role='hacker',
+                is_leader=True,
+            )
+            self.stdout.write(self.style.SUCCESS('Created Admin Team'))
+
+        # Register admin_team for the hackathon (so admin can submit projects)
+        if admin_team:
+            TeamRegistration.objects.get_or_create(
+                hackathon=hackathon,
+                team_profile=admin_team,
+                defaults={
+                    'status': 'approved',
+                    'notes': 'Admin team for testing submissions',
+                }
+            )
+            self.stdout.write(self.style.SUCCESS('Registered Admin Team for hackathon'))
+
+        # Create a team seeking members (admin NOT in this team)
+        seeking_team = TeamProfilePage.objects.filter(slug='innovators-seeking').first()
+        if not seeking_team and len(users) > 9:
+            seeking_team = TeamProfilePage(
+                title='AI Innovators (Looking for Members!)',
+                slug='innovators-seeking',
+                tagline='Building the future of AI - we need YOU!',
+                is_open_for_members=True,
+                max_members=5,
+            )
+            team_index.add_child(instance=seeking_team)
+            seeking_team.save_revision().publish()
+            TeamMembership.objects.create(
+                team=seeking_team,
+                user=users[9],
+                role='hustler',
+                is_leader=True,
+            )
+            self.stdout.write(self.style.SUCCESS('Created team seeking members'))
 
         # Create community posts
         self.stdout.write('Creating community posts...')

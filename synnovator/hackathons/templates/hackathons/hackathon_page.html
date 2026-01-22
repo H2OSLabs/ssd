@@ -7,7 +7,7 @@
         Register Now
     </a>
 {% elif page.status == 'in_progress' and user.is_authenticated %}
-    <a href="{% url 'hackathons:teams' page.slug %}" class="btn btn-primary">
+    <a href="{% url 'hackathons:hackathon_teams' page.slug %}" class="btn btn-primary">
         View Teams
     </a>
     <a href="{% url 'hackathons:submit' page.slug %}" class="btn btn-secondary">

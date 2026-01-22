@@ -1,0 +1,123 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Notification Preferences" %}{% endblock %}
+
+{% block main_content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        {% trans "Notification Preferences" %}
+    </h1>
+
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400{% else %}bg-blue-50 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+
+        {# Global Preferences #}
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {% trans "Global Settings" %}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {% trans "These settings apply as defaults for all notification types unless overridden below." %}
+            </p>
+
+            <div class="space-y-4">
+                <label class="flex items-center gap-3">
+                    <input
+                        type="checkbox"
+                        name="global_in_app"
+                        {% if preferences.in_app|default:True %}checked{% endif %}
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                    <span class="text-gray-700 dark:text-gray-300">{% trans "In-App Notifications" %}</span>
+                </label>
+
+                <label class="flex items-center gap-3">
+                    <input
+                        type="checkbox"
+                        name="global_email"
+                        {% if preferences.email %}checked{% endif %}
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                    <span class="text-gray-700 dark:text-gray-300">{% trans "Email Notifications" %}</span>
+                </label>
+            </div>
+        </div>
+
+        {# Per-Type Preferences #}
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {% trans "Notification Types" %}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {% trans "Configure preferences for each type of notification." %}
+                </p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900/50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% trans "Notification Type" %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% trans "In-App" %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% trans "Email" %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for ntype in notification_types %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                {{ ntype.label }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <input
+                                    type="checkbox"
+                                    name="{{ ntype.key }}_in_app"
+                                    {% if ntype.in_app %}checked{% endif %}
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                >
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <input
+                                    type="checkbox"
+                                    name="{{ ntype.key }}_email"
+                                    {% if ntype.email %}checked{% endif %}
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                >
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {# Submit Button #}
+        <div class="flex justify-end">
+            <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            >
+                {% trans "Save Preferences" %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock main_content %}

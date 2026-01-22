@@ -205,12 +205,28 @@ Context variables expected:
     <!-- Page Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold text-gh-neutral-emphasis dark:text-white mb-gh-2">Quests</h1>
+            <h1 class="text-3xl font-bold text-gh-neutral-emphasis dark:text-white mb-gh-2">{{ page.title|default:"Quests" }}</h1>
+            {% if page.introduction %}
+            <div class="prose max-w-none text-gh-neutral-muted dark:text-gray-400">
+                {{ page.introduction|richtext }}
+            </div>
+            {% else %}
             <p class="text-gh-neutral-muted dark:text-gray-400">
                 Complete quests to earn XP, unlock achievements, and level up your skills
             </p>
+            {% endif %}
         </div>
     </div>
+
+    <!-- Featured Quest -->
+    {% if featured %}
+    <div class="mb-gh-6">
+        <h2 class="text-2xl font-bold mb-gh-4 text-gh-neutral-emphasis dark:text-white">Featured Quest</h2>
+        <div class="featured-quest">
+            {% include "components/quest-card.html" with quest=featured featured=True %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Active Filters Display -->
     {% if filters %}
@@ -264,7 +280,9 @@ Context variables expected:
     </div>
 
     <!-- Pagination -->
-    {% if page_obj %}
+    {% if paginator_page %}
+        {% include "components/pagination.html" with paginator_page=paginator_page %}
+    {% elif page_obj %}
         {% include "components/pagination.html" with paginator_page=page_obj %}
     {% endif %}
 </div>

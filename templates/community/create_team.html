@@ -1,0 +1,48 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Team" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">{% trans "Create a New Team" %}</h1>
+
+    <form method="post" class="max-w-lg">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label for="name" class="block text-sm font-medium mb-2">
+                {% trans "Team Name" %} *
+            </label>
+            <input type="text" name="name" id="name" required
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+        </div>
+
+        <div class="mb-4">
+            <label for="tagline" class="block text-sm font-medium mb-2">
+                {% trans "Tagline" %}
+            </label>
+            <input type="text" name="tagline" id="tagline" maxlength="500"
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                   placeholder="{% trans 'A short description of your team...' %}">
+        </div>
+
+        <div class="mb-6">
+            <label for="role" class="block text-sm font-medium mb-2">
+                {% trans "Your Role" %}
+            </label>
+            <select name="role" id="role"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="hacker">{% trans "Hacker (Engineer)" %}</option>
+                <option value="hipster">{% trans "Hipster (Designer/UX)" %}</option>
+                <option value="hustler">{% trans "Hustler (Business/Marketing)" %}</option>
+            </select>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+            {% trans "Create Team" %}
+        </button>
+    </form>
+</div>
+{% endblock %}

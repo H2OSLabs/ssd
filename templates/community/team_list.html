@@ -1,0 +1,41 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">{% trans "Teams" %}</h1>
+        {% if user.is_authenticated %}
+        <a href="{% url 'community:create_team' %}"
+           class="bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+            {% trans "Create Team" %}
+        </a>
+        {% endif %}
+    </div>
+
+    {% if teams %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for team in teams %}
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-xl font-semibold mb-2">{{ team.title }}</h2>
+            {% if team.tagline %}
+            <p class="text-gray-600 mb-4">{{ team.tagline }}</p>
+            {% endif %}
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">
+                    {{ team.get_member_count }} {% trans "members" %}
+                </span>
+                <a href="{{ team.url }}" class="text-primary-600 hover:underline">
+                    {% trans "View Team" %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-600">{% trans "No teams are currently looking for members." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

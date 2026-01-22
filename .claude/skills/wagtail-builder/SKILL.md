@@ -23,6 +23,9 @@ Wagtail CMS 开发最佳实践指南（Wagtail 6.0+, 7.x, Django 5.x）
 | "翻译留到最后做" | 翻译 = 技术架构的一部分，必须同步 |
 | "代码里用中文更方便" | msgid **必须**用英文，否则翻译系统崩溃 |
 | "先不管翻译，页面能显示就行" | 不翻译 = 中英文混用 = 用户体验灾难 |
+| "Jinja2 语法差不多" | **Django Templates ≠ Jinja2**！注释/条件语法不同 |
+| "{# #} 多行注释" | Django 中 `{# #}` 仅限单行，多行用 `{% comment %}` |
+| "if 里加括号分组" | Django 不支持 `()`，用嵌套 if 或 view 计算 |
 
 **违反最佳实践不会节省时间，只会增加技术债。**
 
@@ -724,6 +727,122 @@ urlpatterns += [path('api/v2/', api_router.urls)]
 
 **Test**: `http://localhost:8000/api/v2/pages/?fields=*`
 
+## 🔧 Django Template Syntax (NOT Jinja2)
+
+**CRITICAL**: This project uses **Django Templates**, NOT Jinja2. The template engine is configured as:
+
+```python
+# settings/base.py
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        ...
+    }
+]
+```
+
+### Key Differences from Jinja2
+
+| Feature | Django Templates | Jinja2 |
+|---------|------------------|--------|
+| Multi-line comments | `{% comment %}...{% endcomment %}` | `{# ... #}` works for multi-line |
+| Single-line comments | `{# comment #}` | `{# comment #}` |
+| Logical operators | `and`, `or`, `not` (no parentheses) | Supports `()` for grouping |
+| extends position | **MUST be first tag** | Can have content before |
+| Template loading | `{% load tag_lib %}` | Auto-loaded extensions |
+
+### ❌ Anti-Pattern: Wrong Comment Syntax
+
+```django
+{# ❌ WRONG: Multi-line with {# #} will render as text #}
+{#
+    This is a multi-line comment
+    that will SHOW ON THE PAGE!
+#}
+
+{# ✅ CORRECT: Use {% comment %} for multi-line #}
+{% comment %}
+    This is a multi-line comment
+    that will NOT render on the page
+{% endcomment %}
+
+{# ✅ CORRECT: {# #} works for single line only #}
+{# This is a single-line comment #}
+```
+
+### ❌ Anti-Pattern: extends Not First
+
+```django
+{# ❌ WRONG: extends must be FIRST tag #}
+{% comment %}
+    Template documentation here
+{% endcomment %}
+{% extends "base.html" %}  {# ERROR: TemplateSyntaxError #}
+
+{# ✅ CORRECT: extends FIRST, then comment #}
+{% extends "base.html" %}
+{% load i18n static %}
+{% comment %}
+    Template documentation here
+{% endcomment %}
+```
+
+### ❌ Anti-Pattern: Parentheses in Conditions
+
+```django
+{# ❌ WRONG: Django doesn't support parentheses for grouping #}
+{% if (status == 'active' or status == 'pending') and user.is_authenticated %}
+
+{# ✅ CORRECT: Use nested if statements #}
+{% if user.is_authenticated %}
+    {% if status == 'active' or status == 'pending' %}
+        ...
+    {% endif %}
+{% endif %}
+
+{# ✅ CORRECT: Or restructure logic in view/model #}
+{# In view: context['is_actionable'] = (status in ['active', 'pending']) and user.is_authenticated #}
+{% if is_actionable %}
+    ...
+{% endif %}
+```
+
+### Quick Reference: Django Template Tags
+
+| Tag | Purpose | Example |
+|-----|---------|---------|
+| `{% extends %}` | Template inheritance (MUST be first) | `{% extends "base.html" %}` |
+| `{% block %}` | Define/override blocks | `{% block content %}...{% endblock %}` |
+| `{% include %}` | Include another template | `{% include "component.html" %}` |
+| `{% load %}` | Load template tag library | `{% load i18n static %}` |
+| `{% comment %}` | Multi-line comment | `{% comment %}...{% endcomment %}` |
+| `{# #}` | Single-line comment | `{# This is a comment #}` |
+| `{% if %}` | Conditional | `{% if user.is_authenticated %}` |
+| `{% for %}` | Loop | `{% for item in items %}` |
+| `{% trans %}` | Translation (short) | `{% trans "Hello" %}` |
+| `{% blocktrans %}` | Translation (with vars) | `{% blocktrans %}Hello {{ name }}{% endblocktrans %}` |
+| `{% url %}` | URL reverse | `{% url 'app:view_name' %}` |
+| `{% static %}` | Static file URL | `{% static 'css/main.css' %}` |
+
+### Template Debugging Checklist
+
+When you see template errors:
+
+1. **TemplateSyntaxError: extends must be first**
+   - Move `{% extends %}` to line 1
+   - Put comments AFTER extends and load tags
+
+2. **TemplateSyntaxError: Could not parse remainder**
+   - Check for parentheses in `{% if %}` conditions
+   - Check for invalid filter syntax
+
+3. **VariableDoesNotExist**
+   - Check field name matches model (e.g., `verification_status` not `status`)
+   - Check context variable is passed from view
+
+4. **Comment text showing on page**
+   - Change `{# multi-line #}` to `{% comment %}...{% endcomment %}`
+
 ## Common Anti-Patterns
 
 ### ❌ Anti-Pattern 1: TableBlock for Structured Data
@@ -821,8 +940,11 @@ python manage.py sqlmigrate myapp 0001
 - **StreamField with 5+ blocks** → Block Organization + `rules/data-models.md`
 - **Multi-language site (i18n)** → Critical Checklists (i18n) + Translation Workflow + `rules/i18n.md`
 - **Adding UI components** → Translation Workflow (MANDATORY)
+- **Writing templates** → Django Template Syntax section (CRITICAL: not Jinja2!)
+- **Template syntax errors** → Django Template Syntax section + Template Debugging Checklist
 - **Code review** → Red Flags + Anti-Patterns + Translation Quality Check + `references/anti-patterns.md`
 - **Performance issues** → Performance Checklist + indexing strategy in `rules/data-models.md`
+- **Writing tests** → Testing patterns + Factory setup + Template sync tests → `rules/test.md`
 
 ## Version Compatibility
 
@@ -833,9 +955,11 @@ python manage.py sqlmigrate myapp 0001
 
 ## Further Reading
 
+- `rules/django-templates.md` - **Django template syntax (NOT Jinja2)**, comment rules, conditional logic
 - `rules/headless-api.md` - RichText serialization, CORS, preview setup
 - `rules/data-models.md` - Indexing strategy, N+1 prevention, Block atomic design
 - `rules/i18n.md` - Internationalization with wagtail-localize, TranslatableMixin guide
+- `rules/test.md` - pytest testing patterns, Factory Boy, template-model sync tests
 - `references/anti-patterns.md` - Common mistakes with detection methods
 - `assets/snippets/` - Copy-paste code templates
 

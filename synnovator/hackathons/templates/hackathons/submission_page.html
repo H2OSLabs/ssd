@@ -1,0 +1,167 @@
+{% extends "base_page.html" %}
+{% load wagtailcore_tags wagtailimages_tags i18n %}
+
+{% block main_content %}
+<div class="site-container">
+    {# Header #}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{{ page.title }}</h1>
+
+        {% if page.tagline %}
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-4">{{ page.tagline }}</p>
+        {% endif %}
+
+        {# Meta info #}
+        <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+            {# Submitter #}
+            <span>
+                <span class="font-medium">{% trans "By" %}:</span>
+                {% if page.team_profile %}
+                <a href="{{ page.team_profile.url }}" class="hover:text-primary-600">
+                    {{ page.team_profile.title }}
+                </a>
+                {% elif page.submitter %}
+                {{ page.submitter.get_full_name|default:page.submitter.username }}
+                {% endif %}
+            </span>
+
+            {# Date #}
+            {% if page.first_published_at %}
+            <span>
+                <span class="font-medium">{% trans "Submitted" %}:</span>
+                {{ page.first_published_at|date:"M d, Y" }}
+            </span>
+            {% endif %}
+
+            {# Status badge #}
+            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full
+                {% if page.verification_status == 'verified' %}
+                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                {% elif page.verification_status == 'submitted' %}
+                bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                {% elif page.verification_status == 'rejected' %}
+                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                {% elif page.verification_status == 'under_review' %}
+                bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                {% else %}
+                bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200
+                {% endif %}">
+                {{ page.get_verification_status_display }}
+            </span>
+
+            {% if page.score %}
+            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                {% trans "Score" %}: {{ page.score }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Associated hackathons #}
+    {% with hackathons=page.hackathons.all %}
+    {% if hackathons %}
+    <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2 text-gray-900 dark:text-white">{% trans "Participating in" %}</h2>
+        <div class="flex flex-wrap gap-2">
+            {% for hackathon in hackathons %}
+            <a href="{{ hackathon.url }}"
+               class="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-700 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                {{ hackathon.title }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {# Main content (StreamField) #}
+    {% if page.content %}
+    <div class="prose dark:prose-invert max-w-none mb-8">
+        {% for block in page.content %}
+            {% if block.block_type == 'heading' %}
+                <h2>{{ block.value }}</h2>
+            {% elif block.block_type == 'paragraph' %}
+                {{ block.value|richtext }}
+            {% elif block.block_type == 'document' %}
+                <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg mb-4">
+                    <a href="{{ block.value.url }}" class="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        {{ block.value.title }}
+                    </a>
+                </div>
+            {% elif block.block_type == 'image' %}
+                <figure class="mb-4">
+                    {% image block.value width-800 class="rounded-lg" %}
+                </figure>
+            {% elif block.block_type == 'video_url' %}
+                <div class="aspect-video mb-4">
+                    <iframe src="{{ block.value }}" class="w-full h-full rounded-lg" allowfullscreen></iframe>
+                </div>
+            {% elif block.block_type == 'github_repo' %}
+                <div class="p-4 bg-gray-900 text-white rounded-lg mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        <a href="{{ block.value.url }}" target="_blank" class="hover:text-primary-400">
+                            {{ block.value.url }}
+                        </a>
+                    </div>
+                    {% if block.value.description %}
+                    <p class="text-gray-300 text-sm">{{ block.value.description }}</p>
+                    {% endif %}
+                    {% if block.value.branch %}
+                    <p class="text-gray-400 text-xs mt-1">{% trans "Branch" %}: {{ block.value.branch }}</p>
+                    {% endif %}
+                </div>
+            {% elif block.block_type == 'demo_url' %}
+                <div class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg mb-4">
+                    <a href="{{ block.value }}" target="_blank" class="flex items-center gap-2 text-primary-600 hover:text-primary-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        {% trans "View Live Demo" %}
+                    </a>
+                </div>
+            {% elif block.block_type == 'code_block' %}
+                <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code class="language-{{ block.value.language }}">{{ block.value.code }}</code></pre>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <p>{% trans "No content has been added to this submission yet." %}</p>
+    </div>
+    {% endif %}
+
+    {# Feedback section (if available) #}
+    {% if page.feedback %}
+    <div class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2 text-blue-800 dark:text-blue-200">{% trans "Reviewer Feedback" %}</h2>
+        <div class="prose dark:prose-invert max-w-none text-blue-900 dark:text-blue-100">
+            {{ page.feedback|linebreaks }}
+        </div>
+        {% if page.verified_by %}
+        <p class="mt-2 text-sm text-blue-600 dark:text-blue-300">
+            {% trans "Reviewed by" %}: {{ page.verified_by.get_full_name|default:page.verified_by.username }}
+            {% if page.verified_at %}
+            {% trans "on" %} {{ page.verified_at|date:"M d, Y" }}
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# Edit button for authorized users #}
+    {% if request.user.is_authenticated and page.user_can_edit %}
+    <div class="mt-8 flex gap-4">
+        <a href="/admin/pages/{{ page.id }}/edit/"
+           class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+            {% trans "Edit Submission" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

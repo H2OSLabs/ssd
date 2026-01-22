@@ -1,0 +1,68 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Register for" %} {{ hackathon.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-2">{% trans "Register for" %} {{ hackathon.title }}</h1>
+    <p class="text-gray-600 mb-8">{% trans "Select a team to register for this hackathon." %}</p>
+
+    {% if user_teams %}
+    <form method="post" class="max-w-lg">
+        {% csrf_token %}
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">
+                {% trans "Select Team" %}
+            </label>
+            <div class="space-y-3">
+                {% for team in user_teams %}
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors
+                              {% if team.id in registered_team_ids %}opacity-50{% endif %}">
+                    <input type="radio" name="team_id" value="{{ team.id }}"
+                           {% if team.id in registered_team_ids %}disabled{% endif %}
+                           class="mr-3">
+                    <div class="flex-1">
+                        <span class="font-medium">{{ team.title }}</span>
+                        {% if team.tagline %}
+                        <p class="text-sm text-gray-500">{{ team.tagline }}</p>
+                        {% endif %}
+                    </div>
+                    {% if team.id in registered_team_ids %}
+                    <span class="text-sm text-green-600">{% trans "Already registered" %}</span>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="submit"
+                    class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+                {% trans "Register Team" %}
+            </button>
+            <a href="{{ hackathon.url }}"
+               class="flex-1 text-center py-2 px-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                {% trans "Cancel" %}
+            </a>
+        </div>
+    </form>
+    {% else %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <p class="text-yellow-800 mb-4">
+            {% trans "You need to be part of a team to register for this hackathon." %}
+        </p>
+        <a href="{% url 'community:create_team' %}"
+           class="inline-block bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+            {% trans "Create a Team" %}
+        </a>
+        <span class="mx-2">{% trans "or" %}</span>
+        <a href="{% url 'community:team_list' %}"
+           class="text-primary-600 hover:underline">
+            {% trans "Join an existing team" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Submit Project" %} - {{ hackathon.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-2">{% trans "Submit Project" %}</h1>
+    <p class="text-gray-600 dark:text-gray-300 mb-8">{% trans "Submit your project for" %} {{ hackathon.title }}</p>
+
+    <form method="post" class="max-w-2xl" x-data="{
+        submissionMode: '{% if can_submit_individual and can_submit_ind %}individual{% elif can_submit_team %}team{% else %}individual{% endif %}'
+    }">
+        {% csrf_token %}
+
+        {# Submission mode selection #}
+        {% if can_submit_individual and can_submit_team %}
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">
+                {% trans "Submission Type" %} *
+            </label>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="submission_mode" value="individual"
+                           x-model="submissionMode"
+                           {% if not can_submit_ind %}disabled{% endif %}
+                           class="w-4 h-4 text-primary-600">
+                    <span class="{% if not can_submit_ind %}text-gray-400{% endif %}">
+                        {% trans "Individual" %}
+                    </span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="submission_mode" value="team"
+                           x-model="submissionMode"
+                           {% if not can_submit_team_any %}disabled{% endif %}
+                           class="w-4 h-4 text-primary-600">
+                    <span class="{% if not can_submit_team_any %}text-gray-400{% endif %}">
+                        {% trans "Team" %}
+                    </span>
+                </label>
+            </div>
+            {% if not can_submit_ind %}
+            <p class="text-sm text-red-500 mt-1">{{ reason_ind }}</p>
+            {% endif %}
+        </div>
+        {% elif can_submit_individual %}
+        <input type="hidden" name="submission_mode" value="individual">
+        {% if not can_submit_ind %}
+        <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p class="text-red-600 dark:text-red-400">{{ reason_ind }}</p>
+        </div>
+        {% endif %}
+        {% elif can_submit_team %}
+        <input type="hidden" name="submission_mode" value="team">
+        {% endif %}
+
+        {# Team selection (shown only for team submissions) #}
+        {% if can_submit_team and teams_with_status %}
+        <div class="mb-6" x-show="submissionMode === 'team'" x-cloak>
+            <label for="team_id" class="block text-sm font-medium mb-2">
+                {% trans "Team" %} *
+            </label>
+            <select name="team_id" id="team_id"
+                    x-bind:required="submissionMode === 'team'"
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600">
+                <option value="">{% trans "Select a team..." %}</option>
+                {% for item in teams_with_status %}
+                <option value="{{ item.team.id }}"
+                        {% if not item.can_submit %}disabled{% endif %}>
+                    {{ item.team.title }}
+                    {% if not item.can_submit %}({{ item.reason }}){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="mb-4">
+            <label for="title" class="block text-sm font-medium mb-2">
+                {% trans "Project Title" %} *
+            </label>
+            <input type="text" name="title" id="title" required
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600"
+                   placeholder="{% trans 'Enter your project title...' %}">
+        </div>
+
+        <div class="mb-6">
+            <label for="tagline" class="block text-sm font-medium mb-2">
+                {% trans "Tagline" %}
+            </label>
+            <input type="text" name="tagline" id="tagline" maxlength="500"
+                   class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600"
+                   placeholder="{% trans 'A short one-liner describing your project...' %}">
+        </div>
+
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            {% trans "After creating your submission, you can add documents, images, videos, and GitHub links from the page editor." %}
+        </p>
+
+        <div class="flex gap-4">
+            <button type="submit"
+                    {% if not can_submit_ind and not can_submit_team_any %}disabled{% endif %}
+                    class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {% trans "Create Submission" %}
+            </button>
+            <a href="{{ hackathon.url }}"
+               class="flex-1 text-center py-2 px-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                {% trans "Cancel" %}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

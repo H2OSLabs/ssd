@@ -53,7 +53,7 @@
 - `BasePage`: 页面基类（抽象）
 - `HomePage`: 首页
 - `ArticlePage`: 文章页面
-- `NewsListingPage`: 新闻列表页
+- `NewsIndexPage`: 新闻列表页
 
 **辅助模型 (Supporting Models):**
 - `AuthorSnippet`: 作者片段
@@ -316,6 +316,7 @@ if hackathon.status == 'registration_open':
 | `end_date` | DateTimeField | 是 | - | 结束时间（UTC） |
 | `order` | PositiveInteger | 是 | 0 | 显示顺序（数字越小越靠前） |
 | `requirements` | JSONField | 否 | {} | 阶段特定要求（JSON 格式） |
+| `required_quests` | M2M(Quest) | 否 | [] | 必需完成的 Quest（阶段完成条件） |
 
 **排序:** `['order', 'start_date']`
 
@@ -324,6 +325,7 @@ if hackathon.status == 'registration_open':
 | 关系类型 | 关联模型 | on_delete | 说明 |
 |---------|---------|-----------|------|
 | 多对一 | HackathonPage | CASCADE | 黑客松删除时阶段也删除 |
+| 多对多 | Quest | - | 必需完成的 Quest（通过 required_quests） |
 
 **关键方法:**
 
@@ -334,6 +336,32 @@ def is_active(self) -> bool:
     now = timezone.now()
     return self.start_date <= now <= self.end_date
 ```
+
+---
+
+```python
+def check_quest_completion(self, user_or_team) -> tuple[bool, str]:
+    """检查用户或团队是否完成了本阶段的所有必需 Quest"""
+    required_quests = self.required_quests.filter(is_active=True)
+    if not required_quests.exists():
+        return True, "No quests required for this phase"
+    
+    # 检查已完成的 Quest
+    completed_quests = Submission.objects.filter(
+        quest__in=required_quests,
+        verification_status='verified',
+        user=user_or_team if hasattr(user_or_team, 'username') else None,
+        team=user_or_team if hasattr(user_or_team, 'name') else None
+    ).values_list('quest_id', flat=True).distinct()
+    
+    missing = required_quests.exclude(id__in=completed_quests)
+    if missing.exists():
+        missing_titles = ', '.join(missing.values_list('title', flat=True))
+        return False, f"Missing quests: {missing_titles}"
+    return True, "All required quests completed"
+```
+
+**用途:** 用于阶段晋级检测（REQ-32）
 
 **示例:**
 ```python
@@ -361,6 +389,7 @@ panels = [
 **运营需求支持:**
 - ✅ REQ-27: 设置活动时间表
 - ✅ REQ-24: 日历信息（可转换为日历事件 JSON）
+- ✅ REQ-32: 阶段晋级检测（通过 check_quest_completion() 方法）
 
 **使用示例:**
 
@@ -727,26 +756,29 @@ for membership in user_teams:
 
 **文件位置:** `synnovator/hackathons/models/quest.py:5`
 
-**继承:** `models.Model`
+**继承:** `TranslatableMixin` + `models.Model`
 
-**用途:** 代表 Dojo 风格的挑战任务，可独立存在或与黑客松关联。用于技能验证和用户活跃度维护。
+**注册:** `@register_snippet`
+
+**用途:** 代表 Hackathon 中的挑战任务（Quest），通过 Phase 关联到 Hackathon。Quest 是 Snippet，可以在多个 Hackathon 中复用。用户必须完成阶段中的必需 Quest 才能进入下一阶段。
 
 **字段定义:**
 
 | 字段名 | 类型 | 必填 | 默认值 | 说明 | 关联需求 |
 |--------|------|------|--------|------|----------|
 | `title` | CharField(200) | 是 | - | 任务名称 | - |
-| `slug` | SlugField(200) | 是 | - | URL 标识符（全局唯一） | - |
+| `slug` | SlugField(200) | 是 | - | URL 标识符（不要求全局唯一） | - |
 | `description` | RichTextField | 是 | - | 挑战描述和目标 | - |
 | `quest_type` | CharField(20) | 是 | - | 类型（见下文） | - |
 | `difficulty` | CharField(20) | 是 | - | 难度（见下文） | - |
 | `xp_reward` | PositiveInteger | 是 | 100 | 完成时奖励的 XP | REQ-11 |
 | `estimated_time_minutes` | PositiveInteger | 是 | 60 | 预计完成时间（分钟） | - |
-| `hackathon` | FK(HackathonPage) | 否 | NULL | 关联黑客松（为空则为全局任务） | - |
 | `is_active` | Boolean | 是 | True | 是否可尝试 | - |
 | `tags` | JSONField | 否 | [] | 技能标签 ['python', 'ML'] | REQ-11 |
 | `created_at` | DateTimeField | 是 | auto | 创建时间 | - |
 | `updated_at` | DateTimeField | 是 | auto | 更新时间 | - |
+| `translation_key` | UUIDField | 是 | auto | 国际化翻译键 | - |
+| `locale` | FK(Locale) | 是 | - | 语言环境 | - |
 
 **任务类型 (quest_type choices):**
 - `technical`: 技术型（Hacker）
@@ -762,11 +794,14 @@ for membership in user_teams:
 
 **排序:** `['-created_at']` - 最新的任务优先
 
+**约束:**
+- `unique_together = [("translation_key", "locale")]` - 国际化唯一约束
+
 **关系映射:**
 
 | 关系类型 | 关联模型 | 关系名 | 说明 |
 |---------|---------|--------|------|
-| 多对一 | HackathonPage | - | 可选关联（为 NULL 则为全局任务） |
+| 多对多 | Phase | `phases` | 通过 Phase.required_quests 关联（Quest 是阶段完成条件） |
 | 一对多 | Submission | `submissions` | 提交记录 |
 
 **关键方法:**
@@ -781,15 +816,22 @@ def get_completion_rate(self) -> float:
     return (completed / total_attempts) * 100
 ```
 
-**注意:** 代码中使用 'passed' 但 Submission 模型实际使用 'verified'，这可能是个 bug。
+**注意:** `get_completion_rate()` 方法中使用 'passed' 但 Submission 模型实际使用 'verified'，需要修复。
 
 **运营需求支持:**
 - ✅ REQ-11: 用户任务完成情况（通过 submissions 反向关系）
+- ✅ REQ-32: 阶段晋级检测（通过 Phase.check_quest_completion() 方法）
+
+**Wagtail Admin 配置:**
+
+Quest 在 Wagtail Admin Snippets 中管理，可以通过 Phase 的 `required_quests` 字段关联到阶段。
 
 **使用示例:**
 
 ```python
-# 创建全局任务
+# 创建 Quest（作为 Snippet，可在多个 Hackathon 中复用）
+from synnovator.hackathons.models import Quest
+
 quest = Quest.objects.create(
     title="Build a REST API",
     slug="build-rest-api",
@@ -798,28 +840,28 @@ quest = Quest.objects.create(
     difficulty='intermediate',
     xp_reward=200,
     estimated_time_minutes=120,
-    hackathon=None,  # 全局任务
     tags=['python', 'django', 'api']
 )
 
-# 创建黑客松特定任务
-hackathon_quest = Quest.objects.create(
-    title="AI Pitch Deck",
-    slug="ai-pitch-deck",
-    description="<p>Create a compelling pitch deck</p>",
-    quest_type='commercial',
-    difficulty='beginner',
-    xp_reward=100,
-    hackathon=hackathon,  # 关联黑客松
-    tags=['presentation', 'business']
-)
+# 将 Quest 关联到 Phase（作为阶段完成条件）
+from synnovator.hackathons.models import Phase
+
+phase = hackathon.phases.first()
+phase.required_quests.add(quest)
+
+# 检查用户是否完成阶段的所有必需 Quest
+is_complete, message = phase.check_quest_completion(user)
+if is_complete:
+    print("可以进入下一阶段")
+else:
+    print(f"还需完成: {message}")
 
 # 查询完成率
 completion_rate = quest.get_completion_rate()
 print(f"完成率: {completion_rate:.1f}%")
 ```
 
-**相关模型:** HackathonPage, Submission, User
+**相关模型:** Phase, Submission, User
 
 ---
 
@@ -1174,7 +1216,7 @@ def plain_introduction(self) -> str:
 **子类:**
 - HomePage
 - ArticlePage
-- NewsListingPage
+- NewsIndexPage
 - StandardPage（可能存在）
 - IndexPage（可能存在）
 - FormPage（可能存在）
@@ -1194,7 +1236,7 @@ og_image = page.social_image or page.listing_image or page.cover_image
 plain_text = page.plain_introduction
 ```
 
-**相关模型:** HomePage, ArticlePage, NewsListingPage, PageRelatedPage
+**相关模型:** HomePage, ArticlePage, NewsIndexPage, PageRelatedPage
 
 ---
 
@@ -1260,7 +1302,7 @@ home.save_revision().publish()
 | `body` | StreamField | 是 | [] | 文章内容 |
 | `featured_section_title` | TextField | 否 | '' | 精选区域标题 |
 
-**父页面类型:** `news.NewsListingPage`
+**父页面类型:** `news.NewsIndexPage`
 
 **关系:**
 - InlinePanel: `page_related_pages` (最多 3 个相关文章)
@@ -1297,16 +1339,16 @@ article = ArticlePage(
     topic=topic,
     introduction="Join our AI challenge",
 )
-news_listing = NewsListingPage.objects.first()
+news_listing = NewsIndexPage.objects.first()
 news_listing.add_child(instance=article)
 article.save_revision().publish()
 ```
 
-**相关模型:** BasePage, AuthorSnippet, ArticleTopic, NewsListingPage
+**相关模型:** BasePage, AuthorSnippet, ArticleTopic, NewsIndexPage
 
 ---
 
-#### 3.2.3 NewsListingPage
+#### 3.2.3 NewsIndexPage
 
 **文件位置:** `synnovator/news/models.py:80`
 
@@ -1449,7 +1491,7 @@ topic = ArticleTopic.objects.create(title="Announcements")
 # slug 自动生成为 "announcements"
 ```
 
-**相关模型:** ArticlePage, NewsListingPage
+**相关模型:** ArticlePage, NewsIndexPage
 
 ---
 
@@ -2301,7 +2343,7 @@ for membership in user_teams:
 - **assets** ✨NEW: UserAsset, AssetTransaction
 - **users**: User
 - **home**: HomePage
-- **news**: ArticlePage, NewsListingPage
+- **news**: ArticlePage, NewsIndexPage
 - **images**: CustomImage, Rendition
 - **utils**: BasePage, AuthorSnippet, ArticleTopic, Statistic, PageRelatedPage, SocialMediaSettings, SystemMessagesSettings
 - **navigation**: NavigationSettings
@@ -2317,7 +2359,7 @@ for membership in user_teams:
 - **通知系统** ✨NEW: Notification
 - **资产管理** ✨NEW: UserAsset, AssetTransaction
 - **用户系统**: User
-- **内容管理**: HomePage, ArticlePage, NewsListingPage
+- **内容管理**: HomePage, ArticlePage, NewsIndexPage
 - **媒体管理**: CustomImage, Rendition
 
 **按优先级分类:**

@@ -139,11 +139,11 @@ erDiagram
     Page ||--o{ HackathonPage : "inherits"
     Page ||--o{ HomePage : "inherits"
     Page ||--o{ ArticlePage : "inherits"
-    Page ||--o{ NewsListingPage : "inherits"
+    Page ||--o{ NewsIndexPage : "inherits"
 
     BasePage ||--o{ HomePage : "inherits"
     BasePage ||--o{ ArticlePage : "inherits"
-    BasePage ||--o{ NewsListingPage : "inherits"
+    BasePage ||--o{ NewsIndexPage : "inherits"
 
     HomePage {
         int id PK
@@ -168,12 +168,12 @@ erDiagram
 
     ArticlePage ||--o{ PageRelatedPage : "has related pages"
 
-    NewsListingPage {
+    NewsIndexPage {
         int id PK
         richtext introduction
     }
 
-    NewsListingPage ||--o{ ArticlePage : "lists articles"
+    NewsIndexPage ||--o{ ArticlePage : "lists articles"
 
     %% Snippet Models
     AuthorSnippet {

@@ -1,0 +1,29 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Leave Team" %} - {{ team.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">{% trans "Leave" %} {{ team.title }}?</h1>
+
+    <p class="text-gray-600 mb-6">
+        {% trans "Are you sure you want to leave this team? You will need to request to rejoin if you change your mind." %}
+    </p>
+
+    <form method="post" class="max-w-lg">
+        {% csrf_token %}
+
+        <div class="flex gap-4">
+            <button type="submit"
+                    class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                {% trans "Leave Team" %}
+            </button>
+            <a href="{{ team.url }}"
+               class="flex-1 text-center py-2 px-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                {% trans "Cancel" %}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

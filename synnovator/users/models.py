@@ -102,3 +102,61 @@ class User(AbstractUser):
             if submission.quest and submission.quest.tags:
                 skills.update(submission.quest.tags)
         return list(skills)
+
+    def get_notification_preference(
+        self,
+        notification_type: str,
+        channel: str = 'in_app'
+    ) -> bool:
+        """
+        Get user's preference for a notification type and channel.
+
+        Checks in order:
+        1. Type-specific channel preference
+        2. Global channel preference
+        3. Default (True for in_app, False for email)
+
+        Args:
+            notification_type: The notification type key (e.g., 'team_invitation')
+            channel: The delivery channel ('in_app' or 'email')
+
+        Returns:
+            True if notification should be sent, False otherwise
+        """
+        prefs = self.notification_preferences or {}
+
+        # Check type-specific override first
+        type_prefs = prefs.get('types', {}).get(notification_type, {})
+        if channel in type_prefs:
+            return type_prefs[channel]
+
+        # Fall back to global channel preference
+        if channel in prefs:
+            return prefs[channel]
+
+        # Default: in_app enabled, email disabled
+        return channel == 'in_app'
+
+    def set_notification_preference(
+        self,
+        notification_type: str,
+        channel: str,
+        enabled: bool
+    ):
+        """
+        Set user's preference for a notification type and channel.
+
+        Args:
+            notification_type: The notification type key
+            channel: The delivery channel ('in_app' or 'email')
+            enabled: Whether to enable the notification
+        """
+        if not self.notification_preferences:
+            self.notification_preferences = {'types': {}}
+        if 'types' not in self.notification_preferences:
+            self.notification_preferences['types'] = {}
+        if notification_type not in self.notification_preferences['types']:
+            self.notification_preferences['types'][notification_type] = {}
+
+        self.notification_preferences['types'][notification_type][channel] = enabled
+        self.save(update_fields=['notification_preferences'])

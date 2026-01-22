@@ -46,6 +46,10 @@ class LinkStructValue(blocks.StructValue):
             return document.file_extension.upper()
         return ""
 
+    def get_icon(self) -> str:
+        """Return icon name if set."""
+        return self.get("icon", "")
+
 
 class CardStructValue(blocks.StructValue):
     def get_image(self):

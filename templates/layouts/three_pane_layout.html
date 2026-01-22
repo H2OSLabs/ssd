@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "base_page.html" %}
 
 {% block content %}
-<div class="three-pane-layout flex min-h-screen">
+<div class="three-pane-layout flex h-full">
     <aside class="navigation-sidebar" x-data="{ collapsed: false }" :class="collapsed ? 'w-16' : 'w-64'" role="navigation" aria-label="Main navigation">
         {% block navigation_sidebar %}{% endblock %}
     </aside>

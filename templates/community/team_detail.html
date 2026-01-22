@@ -1,0 +1,102 @@
+{% extends "base_page.html" %}
+{% load i18n %}
+
+{% block title %}{{ team.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-2">{{ team.title }}</h1>
+        {% if team.tagline %}
+        <p class="text-xl text-gray-600">{{ team.tagline }}</p>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            {% if team.body %}
+            <div class="prose max-w-none mb-8">
+                {% for block in team.body %}
+                    {% if block.block_type == 'heading' %}
+                        <h2>{{ block.value }}</h2>
+                    {% elif block.block_type == 'paragraph' %}
+                        {{ block.value }}
+                    {% elif block.block_type == 'image' %}
+                        {% include_block block %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="space-y-6">
+            <div class="border rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-4">{% trans "Team Members" %}</h2>
+                <ul class="space-y-3">
+                    {% for membership in team.memberships.all %}
+                    <li class="flex items-center justify-between">
+                        <span>
+                            {{ membership.user.get_full_name|default:membership.user.username }}
+                            {% if membership.is_leader %}
+                            <span class="ml-1 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+                                {% trans "Leader" %}
+                            </span>
+                            {% endif %}
+                        </span>
+                        <span class="text-sm text-gray-500">{{ membership.get_role_display }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="text-gray-500">{% trans "No members yet" %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            {% if user.is_authenticated %}
+            <div class="border rounded-lg p-6">
+                {% if is_member %}
+                    {% if is_leader %}
+                    <p class="text-sm text-gray-600 mb-4">{% trans "You are the team leader." %}</p>
+                    {% else %}
+                    <a href="{% url 'community:leave_team' team.slug %}"
+                       class="block text-center w-full py-2 px-4 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                        {% trans "Leave Team" %}
+                    </a>
+                    {% endif %}
+                {% elif team.can_add_member %}
+                <a href="{% url 'community:join_team' team.slug %}"
+                   class="block text-center w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
+                    {% trans "Join Team" %}
+                </a>
+                {% else %}
+                <p class="text-sm text-gray-600">{% trans "This team is not accepting new members." %}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if team.website or team.github_url %}
+            <div class="border rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-4">{% trans "Links" %}</h2>
+                <ul class="space-y-2">
+                    {% if team.website %}
+                    <li>
+                        <a href="{{ team.website }}" target="_blank" rel="noopener"
+                           class="text-primary-600 hover:underline">
+                            {% trans "Website" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if team.github_url %}
+                    <li>
+                        <a href="{{ team.github_url }}" target="_blank" rel="noopener"
+                           class="text-primary-600 hover:underline">
+                            GitHub
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

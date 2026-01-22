@@ -10,6 +10,19 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 
 from synnovator.utils.struct_values import CardStructValue, LinkStructValue
 
+# Icon choices for sidebar navigation
+SIDEBAR_ICON_CHOICES = [
+    ("", "No Icon"),
+    ("home", "Home"),
+    ("trophy", "Trophy/Hackathon"),
+    ("clock", "Clock/In Progress"),
+    ("rocket", "Rocket/Quest"),
+    ("users", "Users/Team"),
+    ("newspaper", "Newspaper/News"),
+    ("list", "List"),
+    ("folder", "Folder"),
+]
+
 
 class AccordionBlock(blocks.StructBlock):
     title = blocks.CharBlock(max_length=255)
@@ -47,6 +60,12 @@ class InternalLinkBlock(blocks.StructBlock):
     title = blocks.CharBlock(
         required=False,
         help_text="Leave blank to use page's listing title.",
+    )
+    icon = blocks.ChoiceBlock(
+        choices=SIDEBAR_ICON_CHOICES,
+        required=False,
+        default="",
+        help_text="Icon for sidebar navigation",
     )
 
     class Meta:

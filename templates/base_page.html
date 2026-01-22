@@ -1,26 +1,47 @@
-
 {% extends "base.html" %}
-
-{% load static wagtailuserbar wagtailcore_tags wagtailimages_tags util_tags %}
+{% load static wagtailuserbar wagtailcore_tags wagtailimages_tags util_tags wagtailsettings_tags %}
 
 {% wagtail_site as current_site %}
 
 {% block meta_tags %}
-
 <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}" sizes="32x32">
 <link rel="icon" href="{% static 'images/favicons/favicon.svg'%}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{% static 'images/favicons/apple-touch-icon.png' %}">
 <link rel="manifest" href="{% static 'images/favicons/favicon.webmanifest' %}">
 <meta name="theme-color" content="#26899E"/>
-
 {% endblock meta_tags %}
 
 {% block header %}
     {% include "navigation/header.html" %}
 {% endblock header %}
 
+{% block content %}
+<div class="flex min-h-screen" x-data="{ sidebarCollapsed: false }">
+    {# Left Sidebar Navigation #}
+    <aside
+        class="flex-shrink-0 transition-all duration-300 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        :class="sidebarCollapsed ? 'w-16' : 'w-64'"
+        role="navigation"
+        aria-label="Main navigation"
+    >
+        {% include "navigation/sidebar.html" %}
+    </aside>
+
+    {# Main Content Area #}
+    <div class="flex-1 flex flex-col min-w-0">
+        {# Breadcrumb Navigation #}
+        {% block breadcrumb %}
+            {% include "navigation/breadcrumbs.html" %}
+        {% endblock breadcrumb %}
+
+        {# Main Content #}
+        <main class="flex-1 p-6" id="main-content">
+            {% block main_content %}{% endblock main_content %}
+        </main>
+    </div>
+</div>
+{% endblock content %}
 
 {% block footer %}
     {% include "navigation/footer.html" %}
 {% endblock footer %}
-

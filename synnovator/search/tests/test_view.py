@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.test import override_settings
+from django.test import override_settings, TestCase
+from django.urls import reverse
 from wagtail.models import Site
-from django.test import TestCase
 
 from synnovator.home.models import HomePage
 

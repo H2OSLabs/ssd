@@ -43,3 +43,21 @@ compile-translations:
 # Complete translation workflow (extract + compile)
 translations: translate-ui compile-translations
 	@echo "✓ Translation workflow complete"
+
+# Run tests with coverage
+test: 
+	uv run pytest
+	@echo "✓ Tests passed"
+	@echo "  Coverage report: htmlcov/index.html"
+
+# Run integration tests only
+test-integration:
+	uv run pytest -m integration
+	@echo "✓ Integration tests passed"
+	
+# Run tests with coverage and open report
+test-report:
+	uv run pytest --cov=synnovator --cov-report=html
+	@echo "✓ Tests passed"
+	@echo "  Coverage report: htmlcov/index.html"
+	@open htmlcov/index.html

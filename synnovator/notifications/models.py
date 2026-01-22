@@ -5,8 +5,91 @@ Implements P1 notification features for user engagement and operational alerts.
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.snippets.models import register_snippet
+from wagtail_localize.models import TranslatableMixin
+
+
+# Notification type constants - single source of truth
+NOTIFICATION_TYPES = [
+    ('violation_alert', _('Rule Violation Alert')),
+    ('deadline_reminder', _('Deadline Reminder')),
+    ('advancement_result', _('Advancement Result')),
+    ('submission_reviewed', _('Submission Reviewed')),
+    ('team_invitation', _('Team Invitation')),
+    ('comment_reply', _('Comment Reply')),
+    ('post_liked', _('Post Liked')),
+    ('new_follower', _('New Follower')),
+    ('system_announcement', _('System Announcement')),
+    ('login_success', _('Login Success')),
+    ('hackathon_created', _('New Hackathon Created')),
+]
+
+
+@register_setting(icon="bell")
+class NotificationSettings(TranslatableMixin, BaseSiteSetting):
+    """
+    Site-wide notification configuration.
+
+    Admins can control:
+    - Which notification types are enabled globally
+    - Default channel preferences (in-app, email)
+    - Whether content owners receive their own notifications
+    """
+
+    enabled_types = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_("Enabled Notification Types"),
+        help_text=_("Format: {'type_key': true/false}")
+    )
+
+    default_in_app = models.BooleanField(
+        default=True,
+        verbose_name=_("Default In-App Notifications"),
+        help_text=_("Enable in-app notifications by default")
+    )
+
+    default_email = models.BooleanField(
+        default=False,
+        verbose_name=_("Default Email Notifications"),
+        help_text=_("Enable email notifications by default")
+    )
+
+    notify_content_owner = models.BooleanField(
+        default=True,
+        verbose_name=_("Notify Content Owner"),
+        help_text=_("Include content creators in notifications about their own content")
+    )
+
+    class Meta:
+        unique_together = [("translation_key", "locale")]
+        verbose_name = _("Notification Settings")
+        verbose_name_plural = _("Notification Settings")
+
+    panels = [
+        MultiFieldPanel([
+            FieldPanel('enabled_types'),
+        ], heading=_("Notification Types")),
+        MultiFieldPanel([
+            FieldPanel('default_in_app'),
+            FieldPanel('default_email'),
+        ], heading=_("Default Channels")),
+        FieldPanel('notify_content_owner'),
+    ]
+
+    def is_type_enabled(self, notification_type: str) -> bool:
+        """Check if a notification type is enabled globally."""
+        return self.enabled_types.get(notification_type, True)
+
+    def get_default_preferences(self) -> dict:
+        """Return default preferences structure for new users."""
+        return {
+            'in_app': self.default_in_app,
+            'email': self.default_email,
+            'types': {t[0]: True for t in NOTIFICATION_TYPES}
+        }
 
 
 @register_snippet
@@ -25,17 +108,7 @@ class Notification(models.Model):
 
     notification_type = models.CharField(
         max_length=50,
-        choices=[
-            ('violation_alert', _('Rule Violation Alert')),
-            ('deadline_reminder', _('Deadline Reminder')),
-            ('advancement_result', _('Advancement Result')),
-            ('submission_reviewed', _('Submission Reviewed')),
-            ('team_invitation', _('Team Invitation')),
-            ('comment_reply', _('Comment Reply')),
-            ('post_liked', _('Post Liked')),
-            ('new_follower', _('New Follower')),
-            ('system_announcement', _('System Announcement')),
-        ],
+        choices=NOTIFICATION_TYPES,
         verbose_name=_("Notification Type"),
         db_index=True
     )

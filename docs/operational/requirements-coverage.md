@@ -970,7 +970,7 @@ class Report(models.Model):
   - `page_related_pages: InlinePanel` - 精选页面（最多 12 个）
 
 **Wagtail Admin 操作:**
-- Pages → NewsListingPage → Add child page → Article Page
+- Pages → NewsIndexPage → Add child page → Article Page
 - Pages → HomePage → Edit → Featured section → 选择 ArticlePage
 
 **缺失功能:** 无

@@ -1,4 +1,6 @@
-{#
+{% extends "layouts/three_pane_layout.html" %}
+{% load static humanize %}
+{% comment %}
     User Profile Page Template
 
     Context Variables Required:
@@ -14,9 +16,7 @@
         - projects: List of project objects with name, description, url, tech_stack
         - activity_history: List of activity objects with action and date
         - seeking_team (optional): Boolean indicating if user is seeking a team
-#}
-{% extends "layouts/three_pane_layout.html" %}
-{% load static humanize %}
+{% endcomment %}
 
 {% block navigation_sidebar %}
     {% include "components/nav-sidebar.html" with active_section="profile" %}
